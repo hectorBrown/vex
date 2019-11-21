@@ -137,127 +137,14 @@ namespace vex
                 //make sure its not 1d (a line)
                 if (entity.Is2D)
                 {
-                    //covers every pixel for triangles - doesn't bother with whole screen
-                    Rectangle rectangle = BoundingBox((Triangle)entity);
-                    //2d - xScroll is value from 0 to width of bounding box, added to init x value to create screen coords
-                    //same goes for yScroll
-                    //RASTERIZERBLOCKSIZE is the size of blocks that can be drawn all at once
-                    //this method scrolls through each 8x8 and then, if it finds that all four vertices are not in the triangle
-                    //and of the right depth, it will go into individual pixel mode
-
-                    for (int xScroll = 0; xScroll < rectangle.Width; xScroll += RASTERIZERBLOCKSIZE)
-                    {
-                        for (int yScroll = 0; yScroll < rectangle.Height; yScroll += RASTERIZERBLOCKSIZE)
-                        {
-
-                            int x = rectangle.Left + xScroll;
-                            int y = rectangle.Top + yScroll;
-                            //IsInsideTriangle bit checks that any of the corners are inside before painting any of the block
-                            //!(SameSide) bit makes sure that blocks where all four corners are outside but have some part of them
-                            //inside the triangle aren't ignored
-
-
-                            if ((IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
-                                || IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y, -1), (Triangle)entity)
-                                || IsInsideTriangle(new Vect3(x, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity)
-                                || IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity))
-                                || !(SameSide((Triangle)entity, new PointF(x, y), new PointF(x + RASTERIZERBLOCKSIZE, y))
-                                && SameSide((Triangle)entity, new PointF(x + RASTERIZERBLOCKSIZE, y), new PointF(x, y + RASTERIZERBLOCKSIZE))
-                                && SameSide((Triangle)entity, new PointF(x, y + RASTERIZERBLOCKSIZE), new PointF(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE))))
-                            {
-
-
-
-                                //general purpose depth var - used throughout
-                                float z;
-                                //checks for array exceptions
-                                bool safe = true;
-                                safe &= x + RASTERIZERBLOCKSIZE < PB_main.Width;
-                                safe &= y + RASTERIZERBLOCKSIZE < PB_main.Height;
-
-                                //handles block
-                                //CHecks that all four corners are inside the triangle before painting the block
-                                //also checks that all the depths are valid
-
-                                if (safe
-                                    && IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
-                                    && IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y, -1), (Triangle)entity)
-                                    && IsInsideTriangle(new Vect3(x, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity)
-                                    && IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity)
-                                    && GetZ(new PointF(x, y), (Triangle)entity) < zBuffer[x, y]
-                                    && GetZ(new PointF(x + RASTERIZERBLOCKSIZE, y), (Triangle)entity) < zBuffer[x + RASTERIZERBLOCKSIZE, y]
-                                    && GetZ(new PointF(x, y + RASTERIZERBLOCKSIZE), (Triangle)entity) < zBuffer[x, y + RASTERIZERBLOCKSIZE]
-                                    && GetZ(new PointF(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE), (Triangle)entity) < zBuffer[x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE])
-                                {
-                                    //just does the main part of all of this
-                                    g.FillRectangle(new SolidBrush(entity.Color), new Rectangle(x, y, RASTERIZERBLOCKSIZE, RASTERIZERBLOCKSIZE));
-                                    //its only after commenting that I realise how ridic this all is
-                                    //this part scrolls through the whole block and gets depth values for each pixel, applies
-                                    //them to the z buffer
-                                    //this remains kind of efficient because the painting is the intensive part
-                                    //COULD BE IMPROVED PROBABLY
-
-                                    for (int zX = x; zX < x + RASTERIZERBLOCKSIZE; zX++)
-                                    {
-                                        for (int zY = y; zY < y + RASTERIZERBLOCKSIZE; zY++)
-                                        {
-                                            z = GetZ(new PointF(zX, zY), (Triangle)entity);
-                                            if (zX < PB_main.Width && zY < PB_main.Height
-                                                && zX > 0 && zY > 0)
-                                            {
-                                                zBuffer[zX, zY] = z;
-                                            }
-                                        }
-                                    }
-
-                                }
-                                //handles subpixels - goes through every pixel in the 8x8 and checks and paints individually
-                                //this happens if >1 but <3 corners are in the triangle, or all the points of the box are not
-                                //on the same side of every triangle edge
-                                else
-                                {
-                                    //subX for subpixel - kinky
-
-                                    for (int subX = x; subX < x + RASTERIZERBLOCKSIZE; subX++)
-                                    {
-                                        for (int subY = y; subY < y + RASTERIZERBLOCKSIZE; subY++)
-                                        {
-                                            //just checks there will be no exceptions - some of these will be sliced by the edge of the screen
-                                            if (subX < PB_main.Width && subY < PB_main.Height
-                                                && subX > 0 && subY > 0)
-                                            {
-                                                //i told you it would be used
-                                                z = GetZ(new PointF(subX, subY), (Triangle)entity);
-                                                //standard check for any pixel
-                                                if (IsInsideTriangle(new Vect3(subX, subY, -1), (Triangle)entity)
-                                                    && z < zBuffer[subX, subY])
-                                                {
-                                                    //if it is visible, change zBuffer and draw single pixel
-                                                    zBuffer[subX, subY] = z;
-                                                    g.FillRectangle(new SolidBrush(entity.Color), new Rectangle(subX, subY, 1, 1));
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                }
-                                //if (z < zBuffer[x, y])
-                                //{
-                                //    //r = Convert.ToInt32(entity.Color.R - (255 * (z / 1)));
-                                //    //g = Convert.ToInt32(entity.Color.G - (255 * (z / 1)));
-                                //    //b = Convert.ToInt32(entity.Color.B - (255 * (z / 1)));
-                                //    //if (r < 0) { r = 0; } else if (r > 255) { r = 255; }
-                                //    //if (g < 0) { g = 0; } else if (g > 255) { g = 255; }
-                                //    //if (b < 0) { b = 0; } else if (b > 255) { b = 255; }
-                                //    //frameBuffer.SetPixel(x, y, Color.FromArgb(r, g, b));
-
-                                //    g.FillRectangle(new SolidBrush(entity.Color), x, y, 1, 1);
-                                //    zBuffer[x, y] = z;
-                                //}                    
-                            }
-                        }
-                    }
-
+                    //quick and dirty triangle cast -- change this
+                    //Triangle tri = (Triangle)entity;
+                    //List<Point> vertices = new List<Point>();
+                    //foreach (Vect3 vertex in tri.Vertices)
+                    //{
+                    //    vertices.Add(new Point(Convert.ToInt32(vertex.X), Convert.ToInt32(vertex.Y)));
+                    //}
+                    //g.FillPolygon(new SolidBrush(entity.Color), vertices.ToArray());
 
 
                 }
