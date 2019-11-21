@@ -25,6 +25,7 @@ namespace vex
 
 
         //fake infinity for depth buffer - just a whopping NDC value, increase if you hit problemos
+        //or use double infinity value
         private readonly float INFINITY = 10000;
 
         //variables that define viewport width, height and camera distance
