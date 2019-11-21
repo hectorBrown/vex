@@ -145,7 +145,50 @@ namespace vex
                     //    vertices.Add(new Point(Convert.ToInt32(vertex.X), Convert.ToInt32(vertex.Y)));
                     //}
                     //g.FillPolygon(new SolidBrush(entity.Color), vertices.ToArray());
+                    //covers every pixel for triangles - doesn't bother with whole screen
+                    Rectangle rectangle = BoundingBox((Triangle)entity);
+                    //2d - xScroll is value from 0 to width of bounding box, added to init x value to create screen coords
+                    //same goes for yScroll
+                    //RASTERIZERBLOCKSIZE is the size of blocks that can be drawn all at once
+                    //this method scrolls through each 8x8 and then, if it finds that all four vertices are not in the triangle
+                    //and of the right depth, it will go into individual pixel mode
 
+
+                    //Im trying something completely new cus that is shit
+
+                    for (int yScroll = 0; yScroll < rectangle.Height; yScroll++)
+                    {
+                        int y = rectangle.Top + yScroll;
+                        //literally whether the cursor is currently inside the triangle
+                        bool _in = false;
+                        for (int xScroll = 0; xScroll < rectangle.Width; xScroll++)
+                        {
+                            int x = rectangle.Left + xScroll;
+                            float z = GetZ(new PointF(x, y), (Triangle)entity);
+                            if (!_in)
+                            {
+                                if (IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
+                                    && zBuffer[x, y] < z)
+                                {
+                                    _in = true;
+                                    zBuffer[x, y] = GetZ(new PointF(x, y), (Triangle)entity);
+                                }
+                            }
+                            else if (_in)
+                            {
+
+                                if (!IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
+                                    || z > zBuffer[x, y])
+                                {
+                                    _in = false;
+                                }
+                                else
+                                {
+                                    zBuffer[x, y] = z;
+                                }
+                            }
+                        }
+                    }
 
                 }
             }
