@@ -145,119 +145,60 @@ namespace vex
                     //this method scrolls through each 8x8 and then, if it finds that all four vertices are not in the triangle
                     //and of the right depth, it will go into individual pixel mode
 
-                    for (int xScroll = 0; xScroll < rectangle.Width; xScroll += RASTERIZERBLOCKSIZE)
+
+                    //Im trying something completely new cus that is shit
+
+                    for (int yScroll = 0; yScroll < rectangle.Height; yScroll++)
                     {
-                        for (int yScroll = 0; yScroll < rectangle.Height; yScroll += RASTERIZERBLOCKSIZE)
+                        int y = rectangle.Top + yScroll;
+                        int start = 0, end = 0;
+                        int debugStart = 0, debugEnd = 0;
+                        //literally whether the cursor is currently inside the triangle
+                        bool _in = false;
+                        bool debugIn = false;
+                        for (int xScroll = 0; xScroll < rectangle.Width; xScroll++)
                         {
-
                             int x = rectangle.Left + xScroll;
-                            int y = rectangle.Top + yScroll;
-                            //IsInsideTriangle bit checks that any of the corners are inside before painting any of the block
-                            //!(SameSide) bit makes sure that blocks where all four corners are outside but have some part of them
-                            //inside the triangle aren't ignored
-
-
-                            if ((IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
-                                || IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y, -1), (Triangle)entity)
-                                || IsInsideTriangle(new Vect3(x, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity)
-                                || IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity))
-                                || !(SameSide((Triangle)entity, new PointF(x, y), new PointF(x + RASTERIZERBLOCKSIZE, y))
-                                && SameSide((Triangle)entity, new PointF(x + RASTERIZERBLOCKSIZE, y), new PointF(x, y + RASTERIZERBLOCKSIZE))
-                                && SameSide((Triangle)entity, new PointF(x, y + RASTERIZERBLOCKSIZE), new PointF(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE))))
+                            float z = GetZ(new PointF(x, y), (Triangle)entity);
+                            //if (debugIn && end = )
+                            //{
+                            //    debugEnd = x;
+                            //}
+                            //else if (z < zBuffer[x, y])
+                            //{
+                            //    debugIn = true;
+                            //    debugStart = x;
+                            //}
+                            if (!_in && start == 0)
+                            {
+                                if (IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
+                                    && z < zBuffer[x, y])
+                                {
+                                    start = x;
+                                    _in = true;
+                                    zBuffer[x, y] = z;
+                                }
+                            }
+                            else if (_in)
                             {
 
-
-
-                                //general purpose depth var - used throughout
-                                float z;
-                                //checks for array exceptions
-                                bool safe = true;
-                                safe &= x + RASTERIZERBLOCKSIZE < PB_main.Width;
-                                safe &= y + RASTERIZERBLOCKSIZE < PB_main.Height;
-
-                                //handles block
-                                //CHecks that all four corners are inside the triangle before painting the block
-                                //also checks that all the depths are valid
-
-                                if (safe
-                                    && IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
-                                    && IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y, -1), (Triangle)entity)
-                                    && IsInsideTriangle(new Vect3(x, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity)
-                                    && IsInsideTriangle(new Vect3(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE, -1), (Triangle)entity)
-                                    && GetZ(new PointF(x, y), (Triangle)entity) < zBuffer[x, y]
-                                    && GetZ(new PointF(x + RASTERIZERBLOCKSIZE, y), (Triangle)entity) < zBuffer[x + RASTERIZERBLOCKSIZE, y]
-                                    && GetZ(new PointF(x, y + RASTERIZERBLOCKSIZE), (Triangle)entity) < zBuffer[x, y + RASTERIZERBLOCKSIZE]
-                                    && GetZ(new PointF(x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE), (Triangle)entity) < zBuffer[x + RASTERIZERBLOCKSIZE, y + RASTERIZERBLOCKSIZE])
+                                if (!IsInsideTriangle(new Vect3(x, y, -1), (Triangle)entity)
+                                    || z > zBuffer[x, y])
                                 {
-                                    //just does the main part of all of this
-                                    g.FillRectangle(new SolidBrush(entity.Color), new Rectangle(x, y, RASTERIZERBLOCKSIZE, RASTERIZERBLOCKSIZE));
-                                    //its only after commenting that I realise how ridic this all is
-                                    //this part scrolls through the whole block and gets depth values for each pixel, applies
-                                    //them to the z buffer
-                                    //this remains kind of efficient because the painting is the intensive part
-                                    //COULD BE IMPROVED PROBABLY
-
-                                    for (int zX = x; zX < x + RASTERIZERBLOCKSIZE; zX++)
-                                    {
-                                        for (int zY = y; zY < y + RASTERIZERBLOCKSIZE; zY++)
-                                        {
-                                            z = GetZ(new PointF(zX, zY), (Triangle)entity);
-                                            if (zX < PB_main.Width && zY < PB_main.Height
-                                                && zX > 0 && zY > 0)
-                                            {
-                                                zBuffer[zX, zY] = z;
-                                            }
-                                        }
-                                    }
-
+                                    end = x - 1;
+                                    _in = false;
                                 }
-                                //handles subpixels - goes through every pixel in the 8x8 and checks and paints individually
-                                //this happens if >1 but <3 corners are in the triangle, or all the points of the box are not
-                                //on the same side of every triangle edge
                                 else
                                 {
-                                    //subX for subpixel - kinky
-
-                                    for (int subX = x; subX < x + RASTERIZERBLOCKSIZE; subX++)
-                                    {
-                                        for (int subY = y; subY < y + RASTERIZERBLOCKSIZE; subY++)
-                                        {
-                                            //just checks there will be no exceptions - some of these will be sliced by the edge of the screen
-                                            if (subX < PB_main.Width && subY < PB_main.Height
-                                                && subX > 0 && subY > 0)
-                                            {
-                                                //i told you it would be used
-                                                z = GetZ(new PointF(subX, subY), (Triangle)entity);
-                                                //standard check for any pixel
-                                                if (IsInsideTriangle(new Vect3(subX, subY, -1), (Triangle)entity)
-                                                    && z < zBuffer[subX, subY])
-                                                {
-                                                    //if it is visible, change zBuffer and draw single pixel
-                                                    zBuffer[subX, subY] = z;
-                                                    g.FillRectangle(new SolidBrush(entity.Color), new Rectangle(subX, subY, 1, 1));
-                                                }
-                                            }
-                                        }
-                                    }
-
+                                    zBuffer[x, y] = z;
                                 }
-                                //if (z < zBuffer[x, y])
-                                //{
-                                //    //r = Convert.ToInt32(entity.Color.R - (255 * (z / 1)));
-                                //    //g = Convert.ToInt32(entity.Color.G - (255 * (z / 1)));
-                                //    //b = Convert.ToInt32(entity.Color.B - (255 * (z / 1)));
-                                //    //if (r < 0) { r = 0; } else if (r > 255) { r = 255; }
-                                //    //if (g < 0) { g = 0; } else if (g > 255) { g = 255; }
-                                //    //if (b < 0) { b = 0; } else if (b > 255) { b = 255; }
-                                //    //frameBuffer.SetPixel(x, y, Color.FromArgb(r, g, b));
-
-                                //    g.FillRectangle(new SolidBrush(entity.Color), x, y, 1, 1);
-                                //    zBuffer[x, y] = z;
-                                //}                    
                             }
                         }
+                        g.FillRectangle(new SolidBrush(entity.Color), new Rectangle(start, y, end - start, 1));
+                        //g.FillRectangle(Brushes.Yellow, new Rectangle(debugStart, y, debugEnd - debugStart, 1));
+                        g.FillRectangle(Brushes.Yellow, new Rectangle(start, y, 1, 1));
+                        g.FillRectangle(Brushes.Pink, new Rectangle(end, y, 1, 1));
                     }
-
 
 
                 }
@@ -442,7 +383,7 @@ namespace vex
 
             newVerts = new List<Vect3>();
 
-            //for each vertex of the shape (probably triangle or line), convert that 
+            //for each vertex of the shape (probably triangle or line), convert that bitch
             //scaling factor -ve cus screen is upside down for y :(
             //honestly probably doing the -ve y fix several times but who cares
             foreach (Vect3 vect in input.Vertices)
@@ -584,7 +525,7 @@ namespace vex
         {
             //this is barycentric coords not a guy called barry
             float[] bary = GetBary(t, new Vect3(p.X, p.Y, -1));
-            //minus needed - i don't know how many times this has been done
+            //because everything is fucked i need a minus 
             return -Convert.ToSingle(Math.Pow(Math.Pow(t.Vertices[0].Z, -1) * bary[0]
                 + Math.Pow(t.Vertices[1].Z, -1) * bary[1]
                 + Math.Pow(t.Vertices[2].Z, -1) * bary[2], -1));
@@ -619,297 +560,6 @@ namespace vex
             output &= Construct.EdgeFunction(t.Vertices[2], t.Vertices[0], new Vect3(p1.X, p1.Y, -1))
                 == Construct.EdgeFunction(t.Vertices[2], t.Vertices[0], new Vect3(p2.X, p2.Y, -1));
             return output;
-        }
-    }
-
-    //makes renderable
-    public interface Renderable
-    {
-        //has to have some corners obvs
-        Vect3[] Vertices { get; set; }
-
-        Color Color { get; set; }
-
-        bool Is2D { get; set; }
-
-        //has to be able to be projected to 2d - has to implement
-        Renderable Project(float viewportWidth, float viewPortHeight, float viewPortCameraDistance, float zClippingDepth);
-
-        //anything that has vertices should be able to be transformed by 4*4 matrix
-        Renderable Transform(Matrix transform);
-    }
-
-    //general purpose class for position and direction vectors - this class should work for 2d vectors if z coord is set to 0 (but i like using -1 cus chaos)
-    public class Vect3
-    {
-        public float X, Y, Z;
-
-        public Vect3(float xIn, float yIn, float zIn)
-        {
-            X = xIn; Y = yIn; Z = zIn;
-        }
-
-        //gets magnitude - should also work for 2d since 0^2 = 0
-        public float Mag()
-        {
-            return Convert.ToSingle(Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2) + Math.Pow(Z, 2)));
-        }
-
-        //need that dot product
-        public float Dot(Vect3 input)
-        {
-            return X * input.X + Y * input.Y + Z * input.Z;
-        }
-        //a 2d dot product
-        public float Dot2D(Vect3 input)
-        {
-            return X * input.X + Y * input.Y;
-        }
-
-        //shallow == and matching != aww in love and that
-        public static bool operator ==(Vect3 v1, Vect3 v2)
-        {
-            if (v1.X == v2.X && v1.Y == v2.Y && v1.Z == v2.Z)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public static bool operator !=(Vect3 v1, Vect3 v2)
-        {
-            if (v1.X == v2.X && v1.Y == v2.Y && v1.Z == v2.Z)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        //define minus & plus while we're at it
-        public static Vect3 operator -(Vect3 v1, Vect3 v2)
-        {
-            return new Vect3(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
-        }
-        public static Vect3 operator +(Vect3 v1, Vect3 v2)
-        {
-            return new Vect3(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
-        }
-
-        //takes 3d vector and projects to NDC
-        public Vect3 Project(float viewportWidth, float viewportHeight, float viewportCameraDistance, float zClippingDepth)
-        {
-            //for similar triangle projection: scales X and Y through ratio of Zs
-            float scalingFactor;
-            //output values
-            float xOut, yOut;
-
-            //-ve because camera looks down -ve Z direction
-            scalingFactor = -viewportCameraDistance / Z;
-            xOut = X * scalingFactor; yOut = Y * scalingFactor;
-
-            return new Vect3(xOut, yOut, Z);
-        }
-
-        //converts to column matrix (with 1 at bottom for that good 4d transformation) or back
-        public Matrix ToColumnMatrix()
-        {
-            return new Matrix(new float[,] { { X }, { Y }, { Z }, { 1 } });
-        }
-        public static Vect3 FromColumnMatrix(Matrix input)
-        {
-            return new Vect3(input.Peek(0, 0), input.Peek(1, 0), input.Peek(2, 0));
-        }
-    }
-
-    public class Triangle : Renderable
-    {
-        //ooh boy is that a long constant
-        private readonly string BADLYDIMENSIONEDCONSTRUCTORARRAYEXCEPTIONMESSAGE = "The constructor array passed is not of length 3 or more.";
-
-        //triangle vertices - if there aren't only 3, something's gone wrong
-        public Vect3[] Vertices { get; set; }
-
-        public Color Color { get; set; }
-
-        public bool Is2D { get { return true; } set { } }
-
-        //two constructors - i'll never use the second one probably but I might who knows 
-        //i like polymorphism
-        public Triangle(Vect3 _p1, Vect3 _p2, Vect3 _p3, Color _color)
-        {
-            Vertices = new Vect3[3];
-            Vertices[0] = _p1; Vertices[1] = _p2; Vertices[2] = _p3;
-            Color = _color;
-        }
-        public Triangle(Vect3[] _vertices, Color _color)
-        {
-            //error checking
-            if (!(_vertices.Length >= 3))
-            {
-                throw new ArgumentException(BADLYDIMENSIONEDCONSTRUCTORARRAYEXCEPTIONMESSAGE);
-            }
-            Vertices = _vertices;
-            Color = _color;
-        }
-
-        //project - callback to like that interface and that
-        //viewPort width and height are the NDC canvas dimensions
-        //viewportCameraDistance is the distance from the canvas to the camera
-        //zClippingDepth is the distance from the camera at which "well now I'm not doing it"
-        public Renderable Project(float viewportWidth, float viewPortHeight, float viewPortCameraDistance, float zClippingDepth)
-        {
-            return new Triangle(Vertices[0].Project(viewportWidth, viewPortHeight, viewPortCameraDistance, zClippingDepth),
-                Vertices[1].Project(viewportWidth, viewPortHeight, viewPortCameraDistance, zClippingDepth),
-                Vertices[2].Project(viewportWidth, viewPortHeight, viewPortCameraDistance, zClippingDepth), Color);
-        }
-
-        //transform
-        public Renderable Transform(Matrix transform)
-        {
-            Triangle output;
-
-            output = new Triangle(Vect3.FromColumnMatrix(Vertices[0].ToColumnMatrix().Multiply(transform)),
-                Vect3.FromColumnMatrix(Vertices[1].ToColumnMatrix().Multiply(transform)),
-                Vect3.FromColumnMatrix(Vertices[2].ToColumnMatrix().Multiply(transform)), Color);
-
-            return output;
-        }
-    }
-
-    public class Line : Renderable
-    {
-        //^^
-        private readonly string BADLYDIMENSIONEDCONSTRUCTORARRAYEXCEPTIONMESSAGE = "The constructor array passed is not of length 3 or more.";
-
-        //line vertices - if there aren't only 2, something's gone wrong
-        public Vect3[] Vertices { get; set; }
-
-        public Color Color { get; set; }
-
-        public bool Is2D { get { return false; } set { } }
-
-        //^^
-        public Line(Vect3 _p1, Vect3 _p2, Color _color)
-        {
-            Vertices = new Vect3[2];
-            Vertices[0] = _p1; Vertices[1] = _p2;
-            Color = _color;
-        }
-        public Line(Vect3[] _vertices)
-        {
-            //error checking
-            if (!(_vertices.Length >= 2))
-            {
-                throw new ArgumentException(BADLYDIMENSIONEDCONSTRUCTORARRAYEXCEPTIONMESSAGE);
-            }
-            Vertices = _vertices;
-        }
-
-        //^^
-        public Renderable Project(float viewportWidth, float viewPortHeight, float viewPortCameraDistance, float zClippingDepth)
-        {
-            return new Line(Vertices[0].Project(viewportWidth, viewPortHeight, viewPortCameraDistance, zClippingDepth),
-                Vertices[1].Project(viewportWidth, viewPortHeight, viewPortCameraDistance, zClippingDepth), Color);
-        }
-
-        //^^
-        public Renderable Transform(Matrix transform)
-        {
-            Line output;
-
-            output = new Line(Vect3.FromColumnMatrix(Vertices[0].ToColumnMatrix().Multiply(transform)),
-                Vect3.FromColumnMatrix(Vertices[1].ToColumnMatrix().Multiply(transform)), Color);
-
-            return output;
-        }
-    }
-
-    public class Matrix
-    {
-        //try and read that
-        private readonly string MULTIPLICATIONINVALIDDIMENSIONSEXCEPTIONMESSAGE = "The matrices passed do not have compatible dimensions.",
-            OUTOFMATRIXBOUNDSEXCEPTIONMESSAGE = "The row and/or column values passed are outside of the bounds of the matrix.";
-        private float[,] matrix;
-
-        //creates empty matrix
-        public Matrix(int rows, int columns)
-        {
-            matrix = new float[rows, columns];
-        }
-        //quickly creates populated matrix
-        public Matrix(float[,] population)
-        {
-            matrix = population;
-        }
-
-        //allows access to row and column size outside object
-        public int CountDimension(int dimension)
-        {
-            return matrix.GetLength(dimension);
-        }
-
-        //adjusts single value of matrix
-        public void Adjust(int row, int column, float value)
-        {
-            //error checking
-            if (!(row >= 0 && column >= 0 && row < CountDimension(0) && column < CountDimension(1)))
-            {
-                throw new ArgumentException(OUTOFMATRIXBOUNDSEXCEPTIONMESSAGE);
-            }
-            matrix[row, column] = value;
-        }
-
-        //views a part of the matrix
-        public float Peek(int row, int column)
-        {
-            //error checking
-            if (!(row >= 0 && column >= 0 && row < CountDimension(0) && column < CountDimension(1)))
-            {
-                throw new ArgumentException(OUTOFMATRIXBOUNDSEXCEPTIONMESSAGE);
-            }
-
-            return matrix[row, column];
-        }
-
-        //main event - multiplication method
-        public Matrix Multiply(Matrix input)
-        {
-            float[,] rawResult;
-
-            //error checking
-            if (!(input.CountDimension(1) == CountDimension(0)))
-            {
-                throw new ArgumentException(MULTIPLICATIONINVALIDDIMENSIONSEXCEPTIONMESSAGE);
-            }
-
-            //creation of raw result array
-            rawResult = new float[input.CountDimension(0), CountDimension(1)];
-
-            //perform multiplication
-            for (int row = 0; row < rawResult.GetLength(0); row++)
-            {
-                for (int column = 0; column < rawResult.GetLength(1); column++)
-                {
-                    //for cell, will be added to repeatedly
-                    float value = 0;
-
-                    //scroll along row for input or column for host matrix
-                    for (int i = 0; i < input.CountDimension(1); i++)
-                    {
-                        value += input.Peek(row, i) * Peek(i, column);
-                    }
-
-                    rawResult[row, column] = value;
-                }
-            }
-
-            //returns
-            return new Matrix(rawResult);
         }
     }
 
