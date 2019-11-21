@@ -521,6 +521,7 @@ namespace vex
         }
 
         //get barycentric coords
+        //I need to understand this -- remember
         private float[] GetBary(Triangle t, Vect3 v)
         {
             float[] output = new float[3];
@@ -611,6 +612,7 @@ namespace vex
                 return new Triangle(vertices[1], vertices[0], vertices[2], color);
             }
         }
+        //understand this too -- important don't forget
         public static bool EdgeFunction(Vect3 v0, Vect3 v1, Vect3 P)
         {
             float value;
