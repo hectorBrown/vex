@@ -189,7 +189,14 @@ namespace vex
                             }
                         }
                     }
-
+                    //list of converted points for fillpoly method
+                    //needs to be depth monitored
+                    List<Point> convPoints = new List<Point>();
+                    foreach (Vect3 vertex in entity.Vertices)
+                    {
+                        convPoints.Add(new Point(Convert.ToInt32(vertex.X), Convert.ToInt32(vertex.Y)));
+                    }
+                    g.FillPolygon(new SolidBrush(entity.Color), convPoints.ToArray());
                 }
             }
 
@@ -666,5 +673,10 @@ namespace vex
             }
             return output.ToArray();
         }
+    }
+    //thats me
+    public class EdgeMachine
+    {
+        //look on scratchapixel.com for details on simplifying edge function
     }
 }
