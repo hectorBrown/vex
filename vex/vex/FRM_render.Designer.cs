@@ -44,11 +44,14 @@
             this.TSS_print_help = new System.Windows.Forms.ToolStripSeparator();
             this.TSTXT_input = new System.Windows.Forms.ToolStripTextBox();
             this.TSB_input = new System.Windows.Forms.ToolStripButton();
+            this.PN_data = new System.Windows.Forms.Panel();
+            this.RTXT_data = new System.Windows.Forms.RichTextBox();
             this.TSC_main.ContentPanel.SuspendLayout();
             this.TSC_main.TopToolStripPanel.SuspendLayout();
             this.TSC_main.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PB_main)).BeginInit();
             this.TS_main.SuspendLayout();
+            this.PN_data.SuspendLayout();
             this.SuspendLayout();
             // 
             // TIM_rotate
@@ -74,11 +77,11 @@
             // TSC_main.ContentPanel
             // 
             this.TSC_main.ContentPanel.Controls.Add(this.PB_main);
-            this.TSC_main.ContentPanel.Size = new System.Drawing.Size(830, 479);
-            this.TSC_main.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TSC_main.ContentPanel.Size = new System.Drawing.Size(694, 479);
+            this.TSC_main.Dock = System.Windows.Forms.DockStyle.Left;
             this.TSC_main.Location = new System.Drawing.Point(0, 0);
             this.TSC_main.Name = "TSC_main";
-            this.TSC_main.Size = new System.Drawing.Size(830, 504);
+            this.TSC_main.Size = new System.Drawing.Size(694, 504);
             this.TSC_main.TabIndex = 2;
             this.TSC_main.Text = "toolStripContainer1";
             // 
@@ -93,7 +96,7 @@
             this.PB_main.Location = new System.Drawing.Point(0, 0);
             this.PB_main.Margin = new System.Windows.Forms.Padding(2);
             this.PB_main.Name = "PB_main";
-            this.PB_main.Size = new System.Drawing.Size(830, 479);
+            this.PB_main.Size = new System.Drawing.Size(694, 479);
             this.PB_main.TabIndex = 1;
             this.PB_main.TabStop = false;
             this.PB_main.Paint += new System.Windows.Forms.PaintEventHandler(this.PB_main_Paint);
@@ -114,7 +117,7 @@
             this.TSB_input});
             this.TS_main.Location = new System.Drawing.Point(3, 0);
             this.TS_main.Name = "TS_main";
-            this.TS_main.Size = new System.Drawing.Size(342, 25);
+            this.TS_main.Size = new System.Drawing.Size(311, 25);
             this.TS_main.TabIndex = 0;
             // 
             // TSB_new
@@ -169,7 +172,6 @@
             // 
             // TSTXT_input
             // 
-            this.TSTXT_input.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.TSTXT_input.Name = "TSTXT_input";
             this.TSTXT_input.Size = new System.Drawing.Size(100, 25);
             // 
@@ -182,11 +184,31 @@
             this.TSB_input.Size = new System.Drawing.Size(76, 22);
             this.TSB_input.Text = "Enter Object";
             // 
+            // PN_data
+            // 
+            this.PN_data.Controls.Add(this.RTXT_data);
+            this.PN_data.Dock = System.Windows.Forms.DockStyle.Right;
+            this.PN_data.Location = new System.Drawing.Point(694, 0);
+            this.PN_data.Name = "PN_data";
+            this.PN_data.Size = new System.Drawing.Size(136, 504);
+            this.PN_data.TabIndex = 3;
+            // 
+            // RTXT_data
+            // 
+            this.RTXT_data.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.RTXT_data.Location = new System.Drawing.Point(0, 0);
+            this.RTXT_data.Name = "RTXT_data";
+            this.RTXT_data.ReadOnly = true;
+            this.RTXT_data.Size = new System.Drawing.Size(136, 504);
+            this.RTXT_data.TabIndex = 0;
+            this.RTXT_data.Text = "";
+            // 
             // FRM_render
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(830, 504);
+            this.Controls.Add(this.PN_data);
             this.Controls.Add(this.TSC_main);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "FRM_render";
@@ -200,6 +222,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.PB_main)).EndInit();
             this.TS_main.ResumeLayout(false);
             this.TS_main.PerformLayout();
+            this.PN_data.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -219,6 +242,8 @@
         private System.Windows.Forms.ToolStripButton TSB_help;
         private System.Windows.Forms.ToolStripTextBox TSTXT_input;
         private System.Windows.Forms.ToolStripButton TSB_input;
+        private System.Windows.Forms.Panel PN_data;
+        private System.Windows.Forms.RichTextBox RTXT_data;
     }
 }
 
