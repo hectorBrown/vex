@@ -57,6 +57,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderable.cs" />
     <Compile Include="Vect3.cs" />
+    <EmbeddedResource Include="FRM_render.resx">
+      <DependentUpon>FRM_render.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

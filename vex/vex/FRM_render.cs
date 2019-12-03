@@ -217,7 +217,7 @@ namespace vex
                                 //on the same side of every triangle edge
                                 else
                                 {
-                                    //subX for subpixel - kinky
+                                    //subX for subpixel 
 
                                     for (int subX = x; subX < x + RASTERIZERBLOCKSIZE; subX++)
                                     {
@@ -258,9 +258,6 @@ namespace vex
                             }
                         }
                     }
-
-
-
                 }
             }
 
@@ -416,6 +413,8 @@ namespace vex
             //Graphics graph = Graphics.FromImage(frameBuffer);
 
             //nice
+            //            PB_main.Refresh();
+            TSC_main.ContentPanel.Update();
             PB_main.Refresh();
         }
 
