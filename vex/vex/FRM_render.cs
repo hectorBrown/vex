@@ -20,6 +20,9 @@ namespace vex
         //private readonly int RASTERIZERDENSITY = 1;
         //8 is used in OpenGL so keep this const
         private readonly int RASTERIZERBLOCKSIZE = 8;
+        //bounding box for shapes#
+        //may have to initiate at lower scaling value
+        private readonly float BOUNDINGBOXSIZE = 10;
 
         //diagnostics
         private int frames = 0;
@@ -631,12 +634,30 @@ namespace vex
             input = TSTXT_input.Text;
             if (planeCheck.IsMatch(input))
             {
-                //plane gen goes here
+
             }
             else
             {
                 MessageBox.Show("Not Plane");
             }
+        }
+        private float[] ParsePlane(string input)
+        {
+            float[] output = new float[4]; 
+            int backCursor = 0;
+            for (int cursor = 0; cursor < input.Length; cursor++)
+            {
+                if (input[cursor] == 'x')
+                {
+                    output[0] = Convert.ToSingle(input.Substring(backCursor, cursor - backCursor + 1));
+                    for (int innerCursor = cursor; innerCursor < input.Length; innerCursor++)
+                    {
+                        //inner cursor scrolls through the wastes inbetween numbers and gets the start of the next section
+                        if (input[innerCursor] == '+' )
+                    }
+                }
+            }
+            //return output -- then put output into Construct.Plane() -- then add triangles to draw list
         }
     }
 
@@ -750,6 +771,23 @@ namespace vex
             {
                 output.Add((Triangle)tri.Transform(combined));
             }
+            return output.ToArray();
+        }
+        private static Triangle[] Plane(float x, float y, float z, float eq, float bound, Color color)
+        {
+            Vect3[] corners = new Vect3[4];
+            List<Triangle> output = new List<Triangle>();
+            //max z, min x
+            corners[0] = new Vect3(-bound, (eq - x*(-bound) - z*(bound)) / y, bound);
+            //min z, min x
+            corners[1] = new Vect3(-bound, (eq - x * (-bound) - z * (-bound)) / y, -bound);
+            //max x, min z
+            corners[2] = new Vect3(bound, (eq - x * (bound) - z * (-bound)) / y, -bound);
+            //max x, max z
+            corners[3] = new Vect3(bound, (eq - x * (bound) - z * (bound)) / y, bound);
+
+            output.Add(new Triangle(new Vect3[] { corners[0], corners[2], corners[1] }, color));
+            output.Add(new Triangle(new Vect3[] { corners[3], corners[2], corners[0] }, color));
             return output.ToArray();
         }
     }
