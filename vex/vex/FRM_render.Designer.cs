@@ -40,8 +40,8 @@
             this.TSB_open = new System.Windows.Forms.ToolStripButton();
             this.TSB_save = new System.Windows.Forms.ToolStripButton();
             this.TSB_print = new System.Windows.Forms.ToolStripButton();
-            this.TSB_help = new System.Windows.Forms.ToolStripButton();
             this.TSS_print_help = new System.Windows.Forms.ToolStripSeparator();
+            this.TSB_help = new System.Windows.Forms.ToolStripButton();
             this.TSTXT_input = new System.Windows.Forms.ToolStripTextBox();
             this.TSB_input = new System.Windows.Forms.ToolStripButton();
             this.PN_data = new System.Windows.Forms.Panel();
@@ -117,7 +117,7 @@
             this.TSB_input});
             this.TS_main.Location = new System.Drawing.Point(3, 0);
             this.TS_main.Name = "TS_main";
-            this.TS_main.Size = new System.Drawing.Size(311, 25);
+            this.TS_main.Size = new System.Drawing.Size(342, 25);
             this.TS_main.TabIndex = 0;
             // 
             // TSB_new
@@ -156,6 +156,11 @@
             this.TSB_print.Size = new System.Drawing.Size(23, 22);
             this.TSB_print.Text = "&Print";
             // 
+            // TSS_print_help
+            // 
+            this.TSS_print_help.Name = "TSS_print_help";
+            this.TSS_print_help.Size = new System.Drawing.Size(6, 25);
+            // 
             // TSB_help
             // 
             this.TSB_help.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -165,13 +170,9 @@
             this.TSB_help.Size = new System.Drawing.Size(23, 22);
             this.TSB_help.Text = "He&lp";
             // 
-            // TSS_print_help
-            // 
-            this.TSS_print_help.Name = "TSS_print_help";
-            this.TSS_print_help.Size = new System.Drawing.Size(6, 25);
-            // 
             // TSTXT_input
             // 
+            this.TSTXT_input.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.TSTXT_input.Name = "TSTXT_input";
             this.TSTXT_input.Size = new System.Drawing.Size(100, 25);
             // 
@@ -183,6 +184,7 @@
             this.TSB_input.Name = "TSB_input";
             this.TSB_input.Size = new System.Drawing.Size(76, 22);
             this.TSB_input.Text = "Enter Object";
+            this.TSB_input.Click += new System.EventHandler(this.TSB_input_Click);
             // 
             // PN_data
             // 

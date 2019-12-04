@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace vex
 {
@@ -529,6 +530,7 @@ namespace vex
             }
         }
 
+
         private void TIM_fps_Tick(object sender, EventArgs e)
         {
             Text = "Vex - " + frames.ToString() + " FPS";
@@ -619,6 +621,22 @@ namespace vex
             output &= Construct.EdgeFunction(t.Vertices[2], t.Vertices[0], new Vect3(p1.X, p1.Y, -1))
                 == Construct.EdgeFunction(t.Vertices[2], t.Vertices[0], new Vect3(p2.X, p2.Y, -1));
             return output;
+        }
+        private void TSB_input_Click(object sender, EventArgs e)
+        {
+            string input;
+            //possibly do regex for each type of object and then check with matching later
+            //could implement overall validation regex
+            Regex planeCheck = new Regex("^([0-9]*.{0,1}[0-9]*[xyz] *){1,3}=[0-9]+.{0,1}[0-9]*$");
+            input = TSTXT_input.Text;
+            if (planeCheck.IsMatch(input))
+            {
+                //plane gen goes here
+            }
+            else
+            {
+                MessageBox.Show("Not Plane");
+            }
         }
     }
 
