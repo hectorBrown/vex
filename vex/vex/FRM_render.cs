@@ -635,6 +635,12 @@ namespace vex
             if (planeCheck.IsMatch(input))
             {
                 float[] planeData = ParsePlane(input);
+                Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, Color.Green);
+                //ISSUE LIES HERE
+                foreach (Triangle tri in outputTris)
+                {
+                    render.Add(tri);
+                }
             }
             else
             {
@@ -643,22 +649,32 @@ namespace vex
         }
         private float[] ParsePlane(string input)
         {
+            //output in order of coefficients
             float[] output = new float[4];
+            //startindex for substrings
             int backCursor = 0;
+            //general purpose for substrings as a buffer in case they have length 0
             string rawStr;
+            //scrolls through raw
             for (int cursor = 0; cursor < input.Length; cursor++)
             {
+                //all these ifs are analogous but the last
+                //when arrive at variable name
                 if (input[cursor] == 'x')
                 {
+                    //take substring
                     rawStr = input.Substring(backCursor, cursor - backCursor);
                     if (rawStr.Length == 0)
                     {
+                        //if there's no number assume 1 (as in "x + 2y")
                         output[0] = 1;
                     }
                     else
                     {
+                        //otherwise convert
                         output[0] = Convert.ToSingle(rawStr);
                     }
+                    //set startindex to ahead of where we just were
                     backCursor = cursor + 1;
                 }
                 if (input[cursor] == 'y')
@@ -691,6 +707,7 @@ namespace vex
                 {
                     backCursor = cursor + 1;
                 }
+                //only different in that the trigger is the end of the string
                 if (cursor == input.Length - 1)
                 {
                     output[3] = Convert.ToSingle(input.Substring(backCursor, cursor - backCursor + 1));
@@ -813,7 +830,7 @@ namespace vex
             }
             return output.ToArray();
         }
-        private static Triangle[] Plane(float x, float y, float z, float eq, float bound, Color color)
+        public static Triangle[] Plane(float x, float y, float z, float eq, float bound, Color color)
         {
             Vect3[] corners = new Vect3[4];
             List<Triangle> output = new List<Triangle>();
