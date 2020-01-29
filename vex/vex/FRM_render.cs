@@ -630,11 +630,11 @@ namespace vex
             string input;
             //possibly do regex for each type of object and then check with matching later
             //could implement overall validation regex
-            Regex planeCheck = new Regex("^([+-]? *[0-9]+(\\.[0-9]+)?x)? *([+-]? *[0-9]+(\\.[0-9]+)?y)? *([+-]? *[0-9]+(\\.[0-9]+)?z)? *= *[+-]?[0-9]*(\\.[0-9]*)?$");
+            Regex planeCheck = new Regex("^([+-]? *[0-9]*(\\.[0-9]+)?x)? *([+-]? *[0-9]*(\\.[0-9]+)?y)? *([+-]? *[0-9]*(\\.[0-9]+)?z)? *= *[+-]?[0-9]+(\\.[0-9]*)?$");
             input = TSTXT_input.Text;
             if (planeCheck.IsMatch(input))
             {
-
+                float[] planeData = ParsePlane(input);
             }
             else
             {
@@ -645,23 +645,60 @@ namespace vex
         {
             float[] output = new float[4];
             int backCursor = 0;
+            string rawStr;
             for (int cursor = 0; cursor < input.Length; cursor++)
             {
                 if (input[cursor] == 'x')
                 {
-                    output[0] = Convert.ToSingle(input.Substring(backCursor, cursor - backCursor + 1));
-                    for (int innerCursor = cursor; innerCursor < input.Length; innerCursor++)
+                    rawStr = input.Substring(backCursor, cursor - backCursor);
+                    if (rawStr.Length == 0)
                     {
-                        //inner cursor scrolls through the wastes inbetween numbers and gets the start of the next section
-                        if (input[innerCursor] != ' ' && input[innerCursor] != '+' && input[innerCursor] != '-')
-                        {
-                            
-                        }
+                        output[0] = 1;
+                    }
+                    else
+                    {
+                        output[0] = Convert.ToSingle(rawStr);
+                    }
+                    backCursor = cursor + 1;
+                }
+                if (input[cursor] == 'y')
+                {
+                    rawStr = input.Substring(backCursor, cursor - backCursor);
+                    if (rawStr.Length == 0)
+                    {
+                        output[1] = 1;
+                    }
+                    else
+                    {
+                        output[1] = Convert.ToSingle(rawStr);
+                    }
+                    backCursor = cursor + 1;
+                }
+                if (input[cursor] == 'z')
+                {
+                    rawStr = input.Substring(backCursor, cursor - backCursor);
+                    if (rawStr.Length == 0)
+                    {
+                        output[2] = 1;
+                    }
+                    else
+                    {
+                        output[2] = Convert.ToSingle(rawStr);
                     }
                 }
+                //need this to scroll past the equals sign
+                if (input[cursor] == '=')
+                {
+                    backCursor = cursor + 1;
+                }
+                if (cursor == input.Length - 1)
+                {
+                    output[3] = Convert.ToSingle(input.Substring(backCursor, cursor - backCursor + 1));
+                }
             }
-        }
+            return output;
             //return output -- then put output into Construct.Plane() -- then add triangles to draw list
+        }
     }
 
     public abstract class Construct
