@@ -630,7 +630,7 @@ namespace vex
             string input;
             //possibly do regex for each type of object and then check with matching later
             //could implement overall validation regex
-            Regex planeCheck = new Regex("^([0-9]*.{0,1}[0-9]*[xyz] *){1,3}=[0-9]+.{0,1}[0-9]*$");
+            Regex planeCheck = new Regex("^([+-]? *[0-9]+(\\.[0-9]+)?x)? *([+-]? *[0-9]+(\\.[0-9]+)?y)? *([+-]? *[0-9]+(\\.[0-9]+)?z)? *= *[+-]?[0-9]*(\\.[0-9]*)?$");
             input = TSTXT_input.Text;
             if (planeCheck.IsMatch(input))
             {
@@ -643,7 +643,7 @@ namespace vex
         }
         private float[] ParsePlane(string input)
         {
-            float[] output = new float[4]; 
+            float[] output = new float[4];
             int backCursor = 0;
             for (int cursor = 0; cursor < input.Length; cursor++)
             {
@@ -653,12 +653,15 @@ namespace vex
                     for (int innerCursor = cursor; innerCursor < input.Length; innerCursor++)
                     {
                         //inner cursor scrolls through the wastes inbetween numbers and gets the start of the next section
-                        if (input[innerCursor] == '+' )
+                        if (input[innerCursor] != ' ' && input[innerCursor] != '+' && input[innerCursor] != '-')
+                        {
+                            
+                        }
                     }
                 }
             }
-            //return output -- then put output into Construct.Plane() -- then add triangles to draw list
         }
+            //return output -- then put output into Construct.Plane() -- then add triangles to draw list
     }
 
     public abstract class Construct
