@@ -62,7 +62,8 @@ namespace vex
         private float scaleFactor;
 
         //test array of triangles
-        private Triangle[] testTris;
+        //private Triangle[] testTris;
+        private List<Renderable> preRender;
 
         public FRM_render()
         {
@@ -118,15 +119,16 @@ namespace vex
             //    //new Triangle(new Vect3(-0.25f, 0.25f, 0.25f), new Vect3(-0.25f, -0.25f, 0.25f), new Vect3(0.25f, 0, -0.25f), Color.Blue)
             //};
 
-            List<Triangle> testTriList = new List<Triangle>();
-            //testTriList.AddRange(Construct.Square(new Vect3(-0.1f, -0.1f, -0.1f), 0.2f, Color.Blue));
-            testTriList.AddRange(Construct.Cube(new Vect3(0.1f, 0.1f, 0.1f), 0.1f, Color.Blue));
-            testTriList.AddRange(Construct.Cube(new Vect3(-0.1f, -0.1f, -0.1f), 0.1f, Color.Red));
-            //testTriList.AddRange(Construct.Cube(new Vect3(0.1f, -0.1f, -0.2f), 0.5f, Color.Red));
-            testTris = testTriList.ToArray();
+            //List<Triangle> testTriList = new List<Triangle>();
+            ////testTriList.AddRange(Construct.Square(new Vect3(-0.1f, -0.1f, -0.1f), 0.2f, Color.Blue));
+            //testTriList.AddRange(Construct.Cube(new Vect3(0.1f, 0.1f, 0.1f), 0.1f, Color.Blue));
+            //testTriList.AddRange(Construct.Cube(new Vect3(-0.1f, -0.1f, -0.1f), 0.1f, Color.Red));
+            ////testTriList.AddRange(Construct.Cube(new Vect3(0.1f, -0.1f, -0.2f), 0.5f, Color.Red));
+            //testTris = testTriList.ToArray();
 
             //set up mousewheel handler
             MouseWheel += new MouseEventHandler(Scroll);
+            preRender = new List<Renderable>();
         }
 
         private void PB_main_Paint(object sender, PaintEventArgs e)
@@ -383,11 +385,11 @@ namespace vex
                 }
             }
 
-            //array of 2d triangles - still NDC
-            projected = new Renderable[testTris.Length];
-            for (int i = 0; i < testTris.Length; i++)
+            //array of 2d renderables - still NDC
+            projected = new Renderable[preRender.Count];
+            for (int i = 0; i < preRender.Count; i++)
             {
-                projected[i] = (Triangle)testTris[i].Transform(combined)
+                projected[i] = (Triangle)preRender[i].Transform(combined)
                     .Transform(translateToFrustrum)
                     .Project(VPWIDTH, VPHEIGHT, CTOVPZ, ZCLIPPING);
             }
@@ -636,7 +638,7 @@ namespace vex
             {
                 float[] planeData = ParsePlane(input);
                 Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, Color.Green);
-                testTris = outputTris;
+                preRender.AddRange(outputTris);
             }
             else
             {
@@ -865,6 +867,9 @@ namespace vex
             }
             output.Add(new Triangle(new Vect3[] { corners[0], corners[2], corners[1] }, color));
             output.Add(new Triangle(new Vect3[] { corners[3], corners[2], corners[0] }, color));
+            //so its visible from both sides
+            output.Add(new Triangle(new Vect3[] { corners[2], corners[0], corners[1] }, color));
+            output.Add(new Triangle(new Vect3[] { corners[2], corners[3], corners[0] }, color));
             return output.ToArray();
         }
     }

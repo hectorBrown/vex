@@ -92,5 +92,9 @@ namespace vex
         {
             return new Vect3(input.Peek(0, 0), input.Peek(1, 0), input.Peek(2, 0));
         }
+        public Vect3 Clone()
+        {
+            return new Vect3(X, Y, Z);
+        }
     }
 }
