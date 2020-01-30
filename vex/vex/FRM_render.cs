@@ -636,11 +636,7 @@ namespace vex
             {
                 float[] planeData = ParsePlane(input);
                 Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, Color.Green);
-                //ISSUE LIES HERE
-                foreach (Triangle tri in outputTris)
-                {
-                    render.Add(tri);
-                }
+                testTris = outputTris;
             }
             else
             {
@@ -664,7 +660,7 @@ namespace vex
                 {
                     //take substring
                     rawStr = input.Substring(backCursor, cursor - backCursor);
-                    if (rawStr.Length == 0)
+                    if (rawStr.Length == 0 || rawStr == "+")
                     {
                         //if there's no number assume 1 (as in "x + 2y")
                         output[0] = 1;
@@ -680,7 +676,7 @@ namespace vex
                 if (input[cursor] == 'y')
                 {
                     rawStr = input.Substring(backCursor, cursor - backCursor);
-                    if (rawStr.Length == 0)
+                    if (rawStr.Length == 0 || rawStr == "+")
                     {
                         output[1] = 1;
                     }
@@ -693,7 +689,7 @@ namespace vex
                 if (input[cursor] == 'z')
                 {
                     rawStr = input.Substring(backCursor, cursor - backCursor);
-                    if (rawStr.Length == 0)
+                    if (rawStr.Length == 0 || rawStr == "+")
                     {
                         output[2] = 1;
                     }
@@ -834,15 +830,39 @@ namespace vex
         {
             Vect3[] corners = new Vect3[4];
             List<Triangle> output = new List<Triangle>();
-            //max z, min x
-            corners[0] = new Vect3(-bound, (eq - x*(-bound) - z*(bound)) / y, bound);
-            //min z, min x
-            corners[1] = new Vect3(-bound, (eq - x * (-bound) - z * (-bound)) / y, -bound);
-            //max x, min z
-            corners[2] = new Vect3(bound, (eq - x * (bound) - z * (-bound)) / y, -bound);
-            //max x, max z
-            corners[3] = new Vect3(bound, (eq - x * (bound) - z * (bound)) / y, bound);
-
+            if (y != 0)
+            {
+                //max z, min x
+                corners[0] = new Vect3(-bound, (eq - x * (-bound) - z * (bound)) / y, bound);
+                //min z, min x
+                corners[1] = new Vect3(-bound, (eq - x * (-bound) - z * (-bound)) / y, -bound);
+                //max x, min z
+                corners[2] = new Vect3(bound, (eq - x * (bound) - z * (-bound)) / y, -bound);
+                //max x, max z
+                corners[3] = new Vect3(bound, (eq - x * (bound) - z * (bound)) / y, bound);
+            }
+            else if (x != 0)
+            {
+                //max z, min y
+                corners[0] = new Vect3((eq - y * (-bound) - z * (bound)) / x, -bound, bound);
+                //min z, min y
+                corners[1] = new Vect3((eq - y * (-bound) - z * (-bound)) / x, -bound, -bound);
+                //max y, min z
+                corners[2] = new Vect3((eq - y * (bound) - z * (-bound)) / x, bound, -bound);
+                //max y, max z
+                corners[3] = new Vect3((eq - y * (bound) - z * (bound)) / x, bound, bound);
+            }
+            else
+            {
+                //max x, min y
+                corners[0] = new Vect3(bound, -bound, (eq - y * (-bound) - x * (bound)) / z);
+                //min x, min y
+                corners[1] = new Vect3(-bound, -bound, (eq - y * (-bound) - x * (-bound)) / z);
+                //max y, min x
+                corners[2] = new Vect3(-bound, bound, (eq - y * (bound) - x * (-bound)) / z);
+                //max y, max x
+                corners[3] = new Vect3(bound, bound, (eq - y * (bound) - x * (bound)) / z);
+            }
             output.Add(new Triangle(new Vect3[] { corners[0], corners[2], corners[1] }, color));
             output.Add(new Triangle(new Vect3[] { corners[3], corners[2], corners[0] }, color));
             return output.ToArray();
