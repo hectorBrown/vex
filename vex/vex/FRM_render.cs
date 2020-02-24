@@ -30,6 +30,8 @@ namespace vex
         private Color[] wheel = new Color[] { Color.Red, Color.Green, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow };
         private int wheelCursor = 0;
 
+        private string info = "";
+
 
         //fake infinity for depth buffer - just a whopping NDC value, increase if you hit problemos
         //or use double infinity value
@@ -643,20 +645,29 @@ namespace vex
             {
                 float[] planeData = ParsePlane(input);
                 Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, wheel[wheelCursor]);
+                info += "\tColour: " + wheel[wheelCursor].Name + "\n";
                 IncrementWheel();
                 preRender.AddRange(outputTris);
+                RefreshInfo();
             }
             else if (cubeCheck.IsMatch(input))
             {
                 Tuple<Vect3,float> cubeData = ParseCube(input);
                 Triangle[] outputTris = Construct.Cube(cubeData.Item1, cubeData.Item2, wheel[wheelCursor]);
+                info += "Cube:\n\tPosition: (" + cubeData.Item1.X.ToString() + "," + cubeData.Item1.Y.ToString() + "," + cubeData.Item1.Z.ToString() + ")\n\t" +
+                    "Size: " + cubeData.Item2.ToString() + "\n\t" +
+                    "Colour: " + wheel[wheelCursor].Name + "\n";
                 IncrementWheel();
                 preRender.AddRange(outputTris);
+                RefreshInfo();
             }
             else if (vectCheck.IsMatch(input))
             {
                 Tuple<Vect3, float[]> vectData = ParseVect(input);
                 Line[] outputLines = Construct.Vector(vectData.Item1, vectData.Item2[0], vectData.Item2[1], vectData.Item2[2], wheel[wheelCursor]);
+                info += "Vector:\n\tPosition: (" + vectData.Item1.X.ToString() + "," + vectData.Item1.Y.ToString() + "," + vectData.Item1.Z.ToString() + ")\n\t" +
+                    "Direction: (" + vectData.Item2[0] + "," + vectData.Item2[1] + "," + vectData.Item2[2] + ")\n\t" +
+                    "Colour: " + wheel[wheelCursor].Name + "\n";
                 IncrementWheel();
                 preRender.AddRange(outputLines);
             }
@@ -667,6 +678,7 @@ namespace vex
         }
         private float[] ParsePlane(string input)
         {
+            info += "Plane:\n\tFormula: ";
             //output in order of coefficients
             float[] output = new float[4];
             //startindex for substrings
@@ -694,6 +706,7 @@ namespace vex
                     }
                     //set startindex to ahead of where we just were
                     backCursor = cursor + 1;
+                    info += "+" + output[0].ToString() + "x ";
                 }
                 if (input[cursor] == 'y')
                 {
@@ -707,6 +720,7 @@ namespace vex
                         output[1] = Convert.ToSingle(rawStr);
                     }
                     backCursor = cursor + 1;
+                    info += "+" + output[1].ToString() + "y ";
                 }
                 if (input[cursor] == 'z')
                 {
@@ -719,6 +733,7 @@ namespace vex
                     {
                         output[2] = Convert.ToSingle(rawStr);
                     }
+                    info += "+" + output[2].ToString() + "z ";
                 }
                 //need this to scroll past the equals sign
                 if (input[cursor] == '=')
@@ -729,6 +744,7 @@ namespace vex
                 if (cursor == input.Length - 1)
                 {
                     output[3] = Convert.ToSingle(input.Substring(backCursor, cursor - backCursor + 1));
+                    info += "= +" + output[3].ToString() + "\n";
                 }
             }
             return output;
@@ -798,6 +814,10 @@ namespace vex
             {
                 wheelCursor = 0;
             }
+        }
+        private void RefreshInfo()
+        {
+            RTXT_data.Text = info;
         }
     }
 

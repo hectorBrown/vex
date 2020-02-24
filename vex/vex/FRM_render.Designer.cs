@@ -117,7 +117,7 @@
             this.TSB_input});
             this.TS_main.Location = new System.Drawing.Point(3, 0);
             this.TS_main.Name = "TS_main";
-            this.TS_main.Size = new System.Drawing.Size(342, 25);
+            this.TS_main.Size = new System.Drawing.Size(311, 25);
             this.TS_main.TabIndex = 0;
             // 
             // TSB_new
@@ -192,7 +192,7 @@
             this.PN_data.Dock = System.Windows.Forms.DockStyle.Right;
             this.PN_data.Location = new System.Drawing.Point(694, 0);
             this.PN_data.Name = "PN_data";
-            this.PN_data.Size = new System.Drawing.Size(136, 504);
+            this.PN_data.Size = new System.Drawing.Size(250, 504);
             this.PN_data.TabIndex = 3;
             // 
             // RTXT_data
@@ -201,7 +201,7 @@
             this.RTXT_data.Location = new System.Drawing.Point(0, 0);
             this.RTXT_data.Name = "RTXT_data";
             this.RTXT_data.ReadOnly = true;
-            this.RTXT_data.Size = new System.Drawing.Size(136, 504);
+            this.RTXT_data.Size = new System.Drawing.Size(250, 504);
             this.RTXT_data.TabIndex = 0;
             this.RTXT_data.Text = "";
             // 
@@ -209,7 +209,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(830, 504);
+            this.ClientSize = new System.Drawing.Size(944, 504);
             this.Controls.Add(this.PN_data);
             this.Controls.Add(this.TSC_main);
             this.Margin = new System.Windows.Forms.Padding(2);
