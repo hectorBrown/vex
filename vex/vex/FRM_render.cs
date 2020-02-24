@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace vex
 {
@@ -225,6 +219,7 @@ namespace vex
                                 }
                                 //handles subpixels - goes through every pixel in the 8x8 and checks and paints individually
                                 //this happens if >1 but <3 corners are in the triangle, or all the points of the box are not
+                                //just noticed that little heart
                                 //on the same side of every triangle edge
                                 else
                                 {
@@ -667,7 +662,7 @@ namespace vex
                 Line[] outputLines = Construct.Vector(vectData.Item1, vectData.Item2[0], vectData.Item2[1], vectData.Item2[2], wheel[wheelCursor]);
                 info += "Vector:\n\tPosition: (" + vectData.Item1.X.ToString() + "," + vectData.Item1.Y.ToString() + "," + vectData.Item1.Z.ToString() + ")\n\t" +
                     "Direction: (" + vectData.Item2[0] + "," + vectData.Item2[1] + "," + vectData.Item2[2] + ")\n\t" +
-                    "Colour: " + wheel[wheelCursor].Name + "\n";
+                    "Colour: Lime Green\n";
                 IncrementWheel();
                 preRender.AddRange(outputLines);
                 RefreshInfo();
