@@ -670,6 +670,7 @@ namespace vex
                     "Colour: " + wheel[wheelCursor].Name + "\n";
                 IncrementWheel();
                 preRender.AddRange(outputLines);
+                RefreshInfo();
             }
             else
             {
