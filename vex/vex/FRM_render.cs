@@ -389,7 +389,7 @@ namespace vex
             projected = new Renderable[preRender.Count];
             for (int i = 0; i < preRender.Count; i++)
             {
-                projected[i] = (Triangle)preRender[i].Transform(combined)
+                projected[i] = preRender[i].Transform(combined)
                     .Transform(translateToFrustrum)
                     .Project(VPWIDTH, VPHEIGHT, CTOVPZ, ZCLIPPING);
             }
@@ -634,6 +634,7 @@ namespace vex
             //could implement overall validation regex
             Regex planeCheck = new Regex("^([+-]? *[0-9]*(\\.[0-9]+)?x)? *([+-]? *[0-9]*(\\.[0-9]+)?y)? *([+-]? *[0-9]*(\\.[0-9]+)?z)? *= *[+-]?[0-9]+(\\.[0-9]*)?$");
             Regex cubeCheck = new Regex("^[Cc][Uu][Bb][Ee]: \\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *[0-9]+(\\.[0-9]+)?$");
+            Regex vectCheck = new Regex("^\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\)$");
             input = TSTXT_input.Text;
             if (planeCheck.IsMatch(input))
             {
@@ -646,6 +647,12 @@ namespace vex
                 Tuple<Vect3,float> cubeData = ParseCube(input);
                 Triangle[] outputTris = Construct.Cube(cubeData.Item1, cubeData.Item2, Color.Green);
                 preRender.AddRange(outputTris);
+            }
+            else if (vectCheck.IsMatch(input))
+            {
+                Tuple<Vect3, float[]> vectData = ParseVect(input);
+                Line[] outputLines = Construct.Vector(vectData.Item1, vectData.Item2[0], vectData.Item2[1], vectData.Item2[2], Color.Green);
+                preRender.AddRange(outputLines);
             }
             else
             {
@@ -746,6 +753,37 @@ namespace vex
                 cursor++;
             }
             return new Tuple<Vect3, float>(new Vect3(xout, yout, zout), sizeout);
+        }
+        private Tuple<Vect3, float[]> ParseVect(string input)
+        {
+            int cursor = 1;
+            int innerCursor;
+            float xout = 0, yout = 0, zout = 0;
+            float lamxout = 0, lamyout = 0, lamzout = 0;
+            while (cursor < input.Length)
+            {
+                if (input[cursor] == ')')
+                {
+                    cursor--;
+                    string[] rawArr = input.Substring(1, cursor).Split(',');
+                    xout = Convert.ToSingle(rawArr[0]); yout = Convert.ToSingle(rawArr[1]); zout = Convert.ToSingle(rawArr[2]);
+                    cursor += 2;
+                }
+                if (input[cursor] == '(')
+                {
+                    innerCursor = cursor;
+                    while (input[innerCursor] != ')')
+                    {
+                        innerCursor++;
+                    }
+                    cursor++; innerCursor--;
+                    string[] rawArr = input.Substring(cursor, innerCursor - cursor + 1).Split(',');
+                    lamxout = Convert.ToSingle(rawArr[0]); lamyout = Convert.ToSingle(rawArr[1]); lamzout = Convert.ToSingle(rawArr[2]);
+                    cursor = innerCursor + 1;
+                }
+                cursor++;
+            }
+            return new Tuple<Vect3, float[]>(new Vect3(xout, yout, zout), new float[] { lamxout, lamyout, lamzout });
         }
     }
 
