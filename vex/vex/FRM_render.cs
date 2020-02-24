@@ -662,7 +662,7 @@ namespace vex
             }
             else
             {
-                MessageBox.Show("Not Plane or Cube");
+                MessageBox.Show("Not Plane or Cube or Vector");
             }
         }
         private float[] ParsePlane(string input)
@@ -824,7 +824,7 @@ namespace vex
         }
         public static Line[] Vector(Vect3 pos, float i, float j, float k, Color color)
         {
-            Vect3 v1, v2;
+            //Vect3 v1, v2;
             List<Line> output = new List<Line>();
             output.Add(new Line(pos, new Vect3(pos.X + i, pos.Y + j, pos.Z + k), color));
             //output.Add(new Line(new Vect3(pos.X + i, pos.Y + j, pos.Z + k), new Vect3()))
