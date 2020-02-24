@@ -39,13 +39,14 @@
             this.TSB_new = new System.Windows.Forms.ToolStripButton();
             this.TSB_open = new System.Windows.Forms.ToolStripButton();
             this.TSB_save = new System.Windows.Forms.ToolStripButton();
-            this.TSB_print = new System.Windows.Forms.ToolStripButton();
             this.TSS_print_help = new System.Windows.Forms.ToolStripSeparator();
             this.TSB_help = new System.Windows.Forms.ToolStripButton();
             this.TSTXT_input = new System.Windows.Forms.ToolStripTextBox();
             this.TSB_input = new System.Windows.Forms.ToolStripButton();
             this.PN_data = new System.Windows.Forms.Panel();
             this.RTXT_data = new System.Windows.Forms.RichTextBox();
+            this.SFD_main = new System.Windows.Forms.SaveFileDialog();
+            this.OFD_main = new System.Windows.Forms.OpenFileDialog();
             this.TSC_main.ContentPanel.SuspendLayout();
             this.TSC_main.TopToolStripPanel.SuspendLayout();
             this.TSC_main.SuspendLayout();
@@ -110,14 +111,13 @@
             this.TSB_new,
             this.TSB_open,
             this.TSB_save,
-            this.TSB_print,
             this.TSS_print_help,
             this.TSB_help,
             this.TSTXT_input,
             this.TSB_input});
             this.TS_main.Location = new System.Drawing.Point(3, 0);
             this.TS_main.Name = "TS_main";
-            this.TS_main.Size = new System.Drawing.Size(311, 25);
+            this.TS_main.Size = new System.Drawing.Size(319, 25);
             this.TS_main.TabIndex = 0;
             // 
             // TSB_new
@@ -128,6 +128,7 @@
             this.TSB_new.Name = "TSB_new";
             this.TSB_new.Size = new System.Drawing.Size(23, 22);
             this.TSB_new.Text = "&New";
+            this.TSB_new.Click += new System.EventHandler(this.TSB_new_Click);
             // 
             // TSB_open
             // 
@@ -137,6 +138,7 @@
             this.TSB_open.Name = "TSB_open";
             this.TSB_open.Size = new System.Drawing.Size(23, 22);
             this.TSB_open.Text = "&Open";
+            this.TSB_open.Click += new System.EventHandler(this.TSB_open_Click);
             // 
             // TSB_save
             // 
@@ -146,15 +148,7 @@
             this.TSB_save.Name = "TSB_save";
             this.TSB_save.Size = new System.Drawing.Size(23, 22);
             this.TSB_save.Text = "&Save";
-            // 
-            // TSB_print
-            // 
-            this.TSB_print.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.TSB_print.Image = ((System.Drawing.Image)(resources.GetObject("TSB_print.Image")));
-            this.TSB_print.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.TSB_print.Name = "TSB_print";
-            this.TSB_print.Size = new System.Drawing.Size(23, 22);
-            this.TSB_print.Text = "&Print";
+            this.TSB_save.Click += new System.EventHandler(this.TSB_save_Click);
             // 
             // TSS_print_help
             // 
@@ -169,6 +163,7 @@
             this.TSB_help.Name = "TSB_help";
             this.TSB_help.Size = new System.Drawing.Size(23, 22);
             this.TSB_help.Text = "He&lp";
+            this.TSB_help.Click += new System.EventHandler(this.TSB_help_Click);
             // 
             // TSTXT_input
             // 
@@ -205,6 +200,17 @@
             this.RTXT_data.TabIndex = 0;
             this.RTXT_data.Text = "";
             // 
+            // SFD_main
+            // 
+            this.SFD_main.FileName = "system.VEXSYS";
+            this.SFD_main.Filter = "Vex files|*.VEXSYS";
+            this.SFD_main.FileOk += new System.ComponentModel.CancelEventHandler(this.SFD_main_FileOk);
+            // 
+            // OFD_main
+            // 
+            this.OFD_main.Filter = "Vex files|*.VEXSYS";
+            this.OFD_main.FileOk += new System.ComponentModel.CancelEventHandler(this.OFD_main_FileOk);
+            // 
             // FRM_render
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -239,13 +245,14 @@
         private System.Windows.Forms.ToolStripButton TSB_new;
         private System.Windows.Forms.ToolStripButton TSB_open;
         private System.Windows.Forms.ToolStripButton TSB_save;
-        private System.Windows.Forms.ToolStripButton TSB_print;
         private System.Windows.Forms.ToolStripSeparator TSS_print_help;
         private System.Windows.Forms.ToolStripButton TSB_help;
         private System.Windows.Forms.ToolStripTextBox TSTXT_input;
         private System.Windows.Forms.ToolStripButton TSB_input;
         private System.Windows.Forms.Panel PN_data;
         private System.Windows.Forms.RichTextBox RTXT_data;
+        private System.Windows.Forms.SaveFileDialog SFD_main;
+        private System.Windows.Forms.OpenFileDialog OFD_main;
     }
 }
 

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.IO;
+using System.Drawing.Printing;
 
 namespace vex
 {
@@ -24,8 +26,10 @@ namespace vex
         private Color[] wheel = new Color[] { Color.Red, Color.Green, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow };
         private int wheelCursor = 0;
 
-        private string info = "";
-
+        //for RTXT box
+        private string info;
+        //list of input strings
+        private List<string> rawSystem;
 
         //fake infinity for depth buffer - just a whopping NDC value, increase if you hit problemos
         //or use double infinity value
@@ -127,9 +131,15 @@ namespace vex
 
             //set up mousewheel handler
             MouseWheel += new MouseEventHandler(Scroll);
-            preRender = new List<Renderable>();
+            New();
         }
 
+        private void New()
+        {
+            preRender = new List<Renderable>();
+            rawSystem = new List<string>();
+            info = "";
+        }
         private void PB_main_Paint(object sender, PaintEventArgs e)
         {
             //Graphics g = Graphics.FromImage(frameBuffer);
@@ -629,15 +639,18 @@ namespace vex
         }
         private void TSB_input_Click(object sender, EventArgs e)
         {
-            string input;
+            InputObject(TSB_input.Text);
+        }
+        private void InputObject(string input)
+        {
             //possibly do regex for each type of object and then check with matching later
             //could implement overall validation regex
             Regex planeCheck = new Regex("^([+-]? *[0-9]*(\\.[0-9]+)?x)? *([+-]? *[0-9]*(\\.[0-9]+)?y)? *([+-]? *[0-9]*(\\.[0-9]+)?z)? *= *[+-]?[0-9]+(\\.[0-9]*)?$");
             Regex cubeCheck = new Regex("^[Cc][Uu][Bb][Ee]: \\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *[0-9]+(\\.[0-9]+)?$");
             Regex vectCheck = new Regex("^\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\)$");
-            input = TSTXT_input.Text;
             if (planeCheck.IsMatch(input))
             {
+                rawSystem.Add(input);
                 float[] planeData = ParsePlane(input);
                 Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, wheel[wheelCursor]);
                 info += "\tColour: " + wheel[wheelCursor].Name + "\n";
@@ -647,6 +660,7 @@ namespace vex
             }
             else if (cubeCheck.IsMatch(input))
             {
+                rawSystem.Add(input);
                 Tuple<Vect3,float> cubeData = ParseCube(input);
                 Triangle[] outputTris = Construct.Cube(cubeData.Item1, cubeData.Item2, wheel[wheelCursor]);
                 info += "Cube:\n\tPosition: (" + cubeData.Item1.X.ToString() + "," + cubeData.Item1.Y.ToString() + "," + cubeData.Item1.Z.ToString() + ")\n\t" +
@@ -658,6 +672,7 @@ namespace vex
             }
             else if (vectCheck.IsMatch(input))
             {
+                rawSystem.Add(input);
                 Tuple<Vect3, float[]> vectData = ParseVect(input);
                 Line[] outputLines = Construct.Vector(vectData.Item1, vectData.Item2[0], vectData.Item2[1], vectData.Item2[2], wheel[wheelCursor]);
                 info += "Vector:\n\tPosition: (" + vectData.Item1.X.ToString() + "," + vectData.Item1.Y.ToString() + "," + vectData.Item1.Z.ToString() + ")\n\t" +
@@ -671,7 +686,57 @@ namespace vex
             {
                 MessageBox.Show("Not Plane or Cube or Vector");
             }
+
         }
+
+        private void TSB_new_Click(object sender, EventArgs e)
+        {
+            New();
+            RefreshInfo();
+        }
+
+        private void TSB_save_Click(object sender, EventArgs e)
+        {
+            SFD_main.ShowDialog();
+        }
+
+        private void SFD_main_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            StreamWriter strW = new StreamWriter(SFD_main.FileName);
+            foreach (string inputLine in rawSystem)
+            {
+                strW.WriteLine(inputLine);
+            }
+            strW.Close();
+        }
+
+        private void TSB_open_Click(object sender, EventArgs e)
+        {
+            OFD_main.ShowDialog();
+        }
+
+        private void OFD_main_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (File.Exists(OFD_main.FileName))
+            {
+                StreamReader strR = new StreamReader(OFD_main.FileName);
+                while (!strR.EndOfStream)
+                {
+                    InputObject(strR.ReadLine());
+                }
+                strR.Close();
+            }
+            else
+            {
+                MessageBox.Show("File does not exist.", "User Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void TSB_help_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Plane Format: [ax + by + cz = d]\nCube Format: [Cube: (a,b,c) d]\nVector Format: [(a,b,c) (d,e,f)]", "Help", MessageBoxButtons.OK, MessageBoxIcon.Question);
+        }
+
         private float[] ParsePlane(string input)
         {
             info += "Plane:\n\tFormula: ";
