@@ -633,6 +633,7 @@ namespace vex
             //possibly do regex for each type of object and then check with matching later
             //could implement overall validation regex
             Regex planeCheck = new Regex("^([+-]? *[0-9]*(\\.[0-9]+)?x)? *([+-]? *[0-9]*(\\.[0-9]+)?y)? *([+-]? *[0-9]*(\\.[0-9]+)?z)? *= *[+-]?[0-9]+(\\.[0-9]*)?$");
+            Regex cubeCheck = new Regex("^[Cc][Uu][Bb][Ee]: \\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *[0-9]+(\\.[0-9]+)?$");
             input = TSTXT_input.Text;
             if (planeCheck.IsMatch(input))
             {
@@ -640,9 +641,15 @@ namespace vex
                 Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, Color.Green);
                 preRender.AddRange(outputTris);
             }
+            else if (cubeCheck.IsMatch(input))
+            {
+                Tuple<Vect3,float> cubeData = ParseCube(input);
+                Triangle[] outputTris = Construct.Cube(cubeData.Item1, cubeData.Item2, Color.Green);
+                preRender.AddRange(outputTris);
+            }
             else
             {
-                MessageBox.Show("Not Plane");
+                MessageBox.Show("Not Plane or Cube");
             }
         }
         private float[] ParsePlane(string input)
@@ -713,6 +720,32 @@ namespace vex
             }
             return output;
             //return output -- then put output into Construct.Plane() -- then add triangles to draw list
+        }
+        private Tuple<Vect3,float> ParseCube(string input)
+        {
+            int cursor = 0;
+            float xout = 0, yout = 0, zout = 0;
+            float sizeout = 0;
+            int innerCursor;
+            while (cursor < input.Length)
+            {
+                if (input[cursor] == '(')
+                {
+                    string[] vectArr;
+                    innerCursor = cursor;
+                    while (input[innerCursor] != ')')
+                    {
+                        innerCursor++;
+                    }
+                    cursor++; innerCursor--;
+                    vectArr = input.Substring(cursor, innerCursor - cursor + 1).Split(',');
+                    xout = Convert.ToSingle(vectArr[0]); yout = Convert.ToSingle(vectArr[1]); zout = Convert.ToSingle(vectArr[2]);
+                    cursor = innerCursor + 2;
+                    sizeout = Convert.ToSingle(input.Substring(cursor, input.Length - cursor));
+                }
+                cursor++;
+            }
+            return new Tuple<Vect3, float>(new Vect3(xout, yout, zout), sizeout);
         }
     }
 
