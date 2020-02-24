@@ -26,6 +26,9 @@ namespace vex
 
         //diagnostics
         private int frames = 0;
+        //as in color ... 
+        private Color[] wheel = new Color[] { Color.Red, Color.Green, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow };
+        private int wheelCursor = 0;
 
 
         //fake infinity for depth buffer - just a whopping NDC value, increase if you hit problemos
@@ -639,19 +642,22 @@ namespace vex
             if (planeCheck.IsMatch(input))
             {
                 float[] planeData = ParsePlane(input);
-                Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, Color.Green);
+                Triangle[] outputTris = Construct.Plane(planeData[0], planeData[1], planeData[2], planeData[3], 1, wheel[wheelCursor]);
+                IncrementWheel();
                 preRender.AddRange(outputTris);
             }
             else if (cubeCheck.IsMatch(input))
             {
                 Tuple<Vect3,float> cubeData = ParseCube(input);
-                Triangle[] outputTris = Construct.Cube(cubeData.Item1, cubeData.Item2, Color.Green);
+                Triangle[] outputTris = Construct.Cube(cubeData.Item1, cubeData.Item2, wheel[wheelCursor]);
+                IncrementWheel();
                 preRender.AddRange(outputTris);
             }
             else if (vectCheck.IsMatch(input))
             {
                 Tuple<Vect3, float[]> vectData = ParseVect(input);
-                Line[] outputLines = Construct.Vector(vectData.Item1, vectData.Item2[0], vectData.Item2[1], vectData.Item2[2], Color.Green);
+                Line[] outputLines = Construct.Vector(vectData.Item1, vectData.Item2[0], vectData.Item2[1], vectData.Item2[2], wheel[wheelCursor]);
+                IncrementWheel();
                 preRender.AddRange(outputLines);
             }
             else
@@ -784,6 +790,14 @@ namespace vex
                 cursor++;
             }
             return new Tuple<Vect3, float[]>(new Vect3(xout, yout, zout), new float[] { lamxout, lamyout, lamzout });
+        }
+        private void IncrementWheel()
+        {
+            wheelCursor++;
+            if (wheelCursor == wheel.Length)
+            {
+                wheelCursor = 0;
+            }
         }
     }
 
