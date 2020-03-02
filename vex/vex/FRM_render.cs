@@ -639,7 +639,7 @@ namespace vex
         }
         private void TSB_input_Click(object sender, EventArgs e)
         {
-            InputObject(TSB_input.Text);
+            InputObject(TSTXT_input.Text);
         }
         private void InputObject(string input)
         {
