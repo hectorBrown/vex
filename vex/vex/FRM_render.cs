@@ -64,6 +64,9 @@ namespace vex
         //scaling for zooming
         private float scaleFactor;
 
+        //rotationspeed auto
+        private int rotationSpeed;
+
         //test array of triangles
         //private Triangle[] testTris;
         private List<Renderable> preRender;
@@ -138,6 +141,8 @@ namespace vex
         {
             preRender = new List<Renderable>();
             rawSystem = new List<string>();
+            rotationSpeed = 0;
+            TSL_rotateSpeed.Text = "0";
             info = "";
         }
         private void PB_main_Paint(object sender, PaintEventArgs e)
@@ -513,6 +518,8 @@ namespace vex
 
         private void PB_main_MouseDown(object sender, MouseEventArgs e)
         {
+            rotationSpeed = 0;
+            TSL_rotateSpeed.Text = "0";
             //set rotation base
             rotationBase = PB_main.PointToClient(MousePosition);
             //start the rotation timer to correct rotation every tick
@@ -662,7 +669,7 @@ namespace vex
             else if (cubeCheck.IsMatch(input))
             {
                 rawSystem.Add(input);
-                Tuple<Vect3,float> cubeData = ParseCube(input);
+                Tuple<Vect3, float> cubeData = ParseCube(input);
                 Triangle[] outputTris = Construct.Cube(cubeData.Item1, cubeData.Item2, wheel[wheelCursor]);
                 info += "Cube:\n\tPosition: (" + cubeData.Item1.X.ToString() + "," + cubeData.Item1.Y.ToString() + "," + cubeData.Item1.Z.ToString() + ")\n\t" +
                     "Size: " + cubeData.Item2.ToString() + "\n\t" +
@@ -685,12 +692,12 @@ namespace vex
             }
             else if (lineCheck.IsMatch(input))
             {
-                
+
                 rawSystem.Add(input);
                 Tuple<Vect3, float[]> lineData = ParseVect(input);
                 Line[] outputLines = Construct.Line(lineData.Item1, lineData.Item2[0], lineData.Item2[1], lineData.Item2[2], 1, wheel[wheelCursor]);
                 info += "Line:\n\tPosition: (" + lineData.Item1.X.ToString() + "," + lineData.Item1.Y.ToString() + "," + lineData.Item1.Z.ToString() + ")\n\t" +
-                    "Direction: (" + lineData.Item2[0] + "," + lineData.Item2[1] + "," + lineData.Item2[2] + ")\n\t" +
+                    "Direction: \\(" + lineData.Item2[0] + "," + lineData.Item2[1] + "," + lineData.Item2[2] + ")\n\t" +
                     "Colour: Lime Green\n";
                 IncrementWheel();
                 preRender.AddRange(outputLines);
@@ -749,6 +756,35 @@ namespace vex
         private void TSB_help_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Plane Format: [ax + by + cz = d]\nCube Format: [Cube: (a,b,c) d]\nVector Format: [(a,b,c) (d,e,f)]\nLine Format: [(a,b,c) \\(d,e,f)]", "Help", MessageBoxButtons.OK, MessageBoxIcon.Question);
+        }
+
+        
+        private void TSB_rotateLeft_Click(object sender, EventArgs e)
+        {
+            AdjustRotationSpeed(-5);
+        }
+        private void TSB_rotateLeftFine_Click(object sender, EventArgs e)
+        {
+            AdjustRotationSpeed(-1);
+        }
+        private void TSB_rotateRightFine_Click(object sender, EventArgs e)
+        {
+            AdjustRotationSpeed(1);
+        }
+        private void TSB_rotateRight_Click(object sender, EventArgs e)
+        {
+            AdjustRotationSpeed(5);
+        }
+        
+        private void AdjustRotationSpeed(int increment)
+        {
+            rotationSpeed += increment;
+            TSL_rotateSpeed.Text = rotationSpeed.ToString();
+        }
+
+        private void TIM_autoRotate_Tick(object sender, EventArgs e)
+        {
+            angleY += (-CONTROLLEDROTATIONSCALING / 10) * rotationSpeed;
         }
 
         private float[] ParsePlane(string input)
