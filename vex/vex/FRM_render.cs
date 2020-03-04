@@ -648,6 +648,7 @@ namespace vex
             Regex planeCheck = new Regex("^([+-]? *[0-9]*(\\.[0-9]+)?x)? *([+-]? *[0-9]*(\\.[0-9]+)?y)? *([+-]? *[0-9]*(\\.[0-9]+)?z)? *= *[+-]?[0-9]+(\\.[0-9]*)?$");
             Regex cubeCheck = new Regex("^[Cc][Uu][Bb][Ee]: \\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *[0-9]+(\\.[0-9]+)?$");
             Regex vectCheck = new Regex("^\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\)$");
+            Regex lineCheck = new Regex("^\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\) *(\\\\)\\([+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?,[+-]? *[0-9]+(\\.[0-9]+)?\\)$");
             if (planeCheck.IsMatch(input))
             {
                 rawSystem.Add(input);
@@ -677,6 +678,19 @@ namespace vex
                 Line[] outputLines = Construct.Vector(vectData.Item1, vectData.Item2[0], vectData.Item2[1], vectData.Item2[2], wheel[wheelCursor]);
                 info += "Vector:\n\tPosition: (" + vectData.Item1.X.ToString() + "," + vectData.Item1.Y.ToString() + "," + vectData.Item1.Z.ToString() + ")\n\t" +
                     "Direction: (" + vectData.Item2[0] + "," + vectData.Item2[1] + "," + vectData.Item2[2] + ")\n\t" +
+                    "Colour: Lime Green\n";
+                IncrementWheel();
+                preRender.AddRange(outputLines);
+                RefreshInfo();
+            }
+            else if (lineCheck.IsMatch(input))
+            {
+                
+                rawSystem.Add(input);
+                Tuple<Vect3, float[]> lineData = ParseVect(input);
+                Line[] outputLines = Construct.Line(lineData.Item1, lineData.Item2[0], lineData.Item2[1], lineData.Item2[2], 1, wheel[wheelCursor]);
+                info += "Line:\n\tPosition: (" + lineData.Item1.X.ToString() + "," + lineData.Item1.Y.ToString() + "," + lineData.Item1.Z.ToString() + ")\n\t" +
+                    "Direction: (" + lineData.Item2[0] + "," + lineData.Item2[1] + "," + lineData.Item2[2] + ")\n\t" +
                     "Colour: Lime Green\n";
                 IncrementWheel();
                 preRender.AddRange(outputLines);
@@ -734,7 +748,7 @@ namespace vex
 
         private void TSB_help_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Plane Format: [ax + by + cz = d]\nCube Format: [Cube: (a,b,c) d]\nVector Format: [(a,b,c) (d,e,f)]", "Help", MessageBoxButtons.OK, MessageBoxIcon.Question);
+            MessageBox.Show("Plane Format: [ax + by + cz = d]\nCube Format: [Cube: (a,b,c) d]\nVector Format: [(a,b,c) (d,e,f)]\nLine Format: [(a,b,c) \\(d,e,f)]", "Help", MessageBoxButtons.OK, MessageBoxIcon.Question);
         }
 
         private float[] ParsePlane(string input)
@@ -912,6 +926,61 @@ namespace vex
 
             return output.ToArray();
         }
+        public static Line[] Line(Vect3 pos, float i, float j, float k, float bound, Color color)
+        {
+            Vect3 v1, v2;
+            List<Line> output = new List<Line>();
+            float xOut, yOut, zOut, val;
+            //+ve bound
+            v1 = AssignLineValues(pos, i, j, k, bound, 0, 0);
+            if (!(v1.Y <= bound && v1.Z <= bound))
+            {
+                v1 = AssignLineValues(pos, i, j, k, 0, bound, 0);
+                if (!(v1.X <= bound && v1.Z <= bound))
+                {
+                    v1 = AssignLineValues(pos, i, j, k, 0, 0, bound);
+                }
+            }
+            //-ve bound
+            v2 = AssignLineValues(pos, i, j, k, -bound, 0, 0);
+            if (!(v2.Y >= -bound && v2.Z >= -bound))
+            {
+                v2 = AssignLineValues(pos, i, j, k, 0, -bound, 0);
+                if (!(v2.X >= -bound && v2.Z >= -bound))
+                {
+                    v2 = AssignLineValues(pos, i, j, k, 0, 0, -bound);
+                }
+            }
+            output.Add(new Line(pos, v1, Color.LimeGreen));
+            output.Add(new Line(pos, v2, Color.LimeGreen));
+            return output.ToArray();
+        }
+        private static Vect3 AssignLineValues(Vect3 pos, float i, float j, float k, float xIn, float yIn, float zIn)
+        {
+            float val;
+            if (xIn != 0)
+            {
+                val = (xIn - pos.X) / i;
+                yIn = j * val + pos.Y;
+                zIn = k * val + pos.Z;
+            }
+            else if (yIn != 0)
+            {
+
+                val = (yIn - pos.Y) / j;
+                xIn = i * val + pos.X;
+                zIn = k * val + pos.Z;
+            }
+            else
+            {
+                
+                val = (zIn - pos.Z) / k;
+                xIn = i * val + pos.X;
+                yIn = j * val + pos.Y;
+            }
+            return new Vect3(xIn, yIn, zIn);
+        }
+
         public static Triangle[] Square(Vect3 pos, float size, Color color)
         {
             Vect3[] vertices;
