@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace vex
 {
 
-    //general purpose class for position and direction vectors - this class should work for 2d vectors if z coord is set to 0 (but i like using -1 cus chaos)
+    //general purpose class for position and direction vectors - this class should work for 2d vectors if z coord is set to 0, I use -1 for consistency
     public class Vect3
     {
         public float X, Y, Z;
@@ -23,7 +23,7 @@ namespace vex
             return Convert.ToSingle(Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2) + Math.Pow(Z, 2)));
         }
 
-        //need that dot product
+        //dot product
         public float Dot(Vect3 input)
         {
             return X * input.X + Y * input.Y + Z * input.Z;
@@ -34,7 +34,7 @@ namespace vex
             return X * input.X + Y * input.Y;
         }
 
-        //shallow == and matching != aww in love and that
+        //shallow == and matching != 
         public static bool operator ==(Vect3 v1, Vect3 v2)
         {
             if (v1.X == v2.X && v1.Y == v2.Y && v1.Z == v2.Z)
@@ -58,7 +58,7 @@ namespace vex
             }
         }
 
-        //define minus & plus while we're at it
+        //define minus & plus 
         public static Vect3 operator -(Vect3 v1, Vect3 v2)
         {
             return new Vect3(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
@@ -83,7 +83,7 @@ namespace vex
             return new Vect3(xOut, yOut, Z);
         }
 
-        //converts to column matrix (with 1 at bottom for that good 4d transformation) or back
+        //converts to column matrix (with 1 at bottom for 4d transformation) or back
         public Matrix ToColumnMatrix()
         {
             return new Matrix(new float[,] { { X }, { Y }, { Z }, { 1 } });

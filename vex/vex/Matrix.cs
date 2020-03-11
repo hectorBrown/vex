@@ -8,7 +8,6 @@ namespace vex
 {
     public class Matrix
     {
-        //try and read that
         private readonly string MULTIPLICATIONINVALIDDIMENSIONSEXCEPTIONMESSAGE = "The matrices passed do not have compatible dimensions.",
             OUTOFMATRIXBOUNDSEXCEPTIONMESSAGE = "The row and/or column values passed are outside of the bounds of the matrix.";
         private float[,] matrix;
@@ -53,7 +52,7 @@ namespace vex
             return matrix[row, column];
         }
 
-        //main event - multiplication method
+        //multiplication method
         public Matrix Multiply(Matrix input)
         {
             float[,] rawResult;

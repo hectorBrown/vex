@@ -16,7 +16,7 @@ namespace vex
         //private readonly int RASTERIZERDENSITY = 1;
         //8 is used in OpenGL so keep this const
         private readonly int RASTERIZERBLOCKSIZE = 8;
-        //bounding box for shapes#
+        //bounding box for shapes
         //may have to initiate at lower scaling value
         private readonly float BOUNDINGBOXSIZE = 10;
 
@@ -31,22 +31,21 @@ namespace vex
         //list of input strings
         private List<string> rawSystem;
 
-        //fake infinity for depth buffer - just a whopping NDC value, increase if you hit problemos
+        //fake infinity for depth buffer - just a large NDC value, increase if you hit problems
         //or use double infinity value
         private readonly float INFINITY = 10000;
 
         //variables that define viewport width, height and camera distance
         private readonly float VPWIDTH = 1, VPHEIGHT = 1, CTOVPZ = 1;
 
-        //clipping distance to help with z buffer - not being used rn (don't think i need to)
+        //clipping distance to help with z buffer - not being used
         private readonly float ZCLIPPING = 10;
 
-        //catch all of renderable items that is passed to PB_main_Paint() - currently expected to just be lines and tris but who knows?
+        //catch all of renderable items that is passed to PB_main_Paint() - currently expected to just be lines and tris
         private List<Renderable> render;
 
         //global zBuffer (genned in TIM_render, used in graphics) and frameBuffer
         float[,] zBuffer;
-        //Image frameBuffer;
 
         //Points that define rotation line drawn
 
@@ -67,70 +66,19 @@ namespace vex
         //rotationspeed auto
         private int rotationSpeed;
 
-        //test array of triangles
-        //private Triangle[] testTris;
+        //global used to store inputted objects before processing
         private List<Renderable> preRender;
 
         public FRM_render()
         {
             InitializeComponent();
-            //t = 0;
             render = new List<Renderable>();
             baseAngleX = 0; baseAngleY = 0;
             scaleFactor = 1;
-            //frameBuffer = new Bitmap(PB_main.Width, PB_main.Height);
         }
 
         private void FRM_render_Load(object sender, EventArgs e)
         {
-            //points and triangles defined for a test cube - may have to be transformed for matrix operations
-            //Vect3[] testCube = new Vect3[]
-            //{
-            //    new Vect3(-0.25f, -0.25f, -1),
-            //    new Vect3(-0.25f, 0.25f, -1),
-            //    new Vect3(0.25f, -0.25f, -1),
-            //    new Vect3(0.25f, 0.25f, -1),
-            //    new Vect3(-0.25f, -0.25f, -1.5f),
-            //    new Vect3(-0.25f, 0.25f, -1.5f),
-            //    new Vect3(0.25f, -0.25f, -1.5f),
-            //    new Vect3(0.25f, 0.25f, -1.5f)
-            //};
-            //Vect3[] testCube = new Vect3[]
-            //{
-            //    //new Vect3(-0.25f, -0.25f, 0.25f),
-            //    new Vect3(0, 0, 0),
-            //    new Vect3(-0.25f, 0.25f, 0.25f),
-            //    new Vect3(0.25f, -0.25f, 0.25f),
-            //    new Vect3(0.25f, 0.25f, 0.25f),
-            //    new Vect3(-0.25f, -0.25f, -0.25f),
-            //    new Vect3(-0.25f, 0.25f, -0.25f),
-            //    new Vect3(0.25f, -0.25f, -0.25f),
-            //    new Vect3(0.25f, 0.25f, -0.25f)
-            //};
-            //testTris = new Triangle[]
-            //{
-            //    new Triangle(testCube[0], testCube[3], testCube[1], Color.MediumPurple),
-            //    new Triangle(testCube[2], testCube[3], testCube[0], Color.MediumPurple),
-            //    new Triangle(testCube[7], testCube[6], testCube[5], Color.Blue),
-            //    new Triangle(testCube[4], testCube[5], testCube[6], Color.Blue),
-            //    new Triangle(testCube[0], testCube[4], testCube[2], Color.Red),
-            //    new Triangle(testCube[2], testCube[4], testCube[6], Color.Red),
-            //    new Triangle(testCube[5], testCube[1], testCube[7], Color.White),
-            //    new Triangle(testCube[7], testCube[1], testCube[3], Color.White),
-            //    new Triangle(testCube[5], testCube[4], testCube[1], Color.Yellow),
-            //    new Triangle(testCube[1], testCube[4], testCube[0], Color.Yellow),
-            //    new Triangle(testCube[3], testCube[2], testCube[7], Color.Orange),
-            //    new Triangle(testCube[7], testCube[2], testCube[6], Color.Orange)
-            //    //new Triangle(new Vect3(0.25f, 0.25f, 0.25f), new Vect3(-0.25f, 0, -0.25f), new Vect3(0.25f, -0.25f, 0.25f), Color.Red),
-            //    //new Triangle(new Vect3(-0.25f, 0.25f, 0.25f), new Vect3(-0.25f, -0.25f, 0.25f), new Vect3(0.25f, 0, -0.25f), Color.Blue)
-            //};
-
-            //List<Triangle> testTriList = new List<Triangle>();
-            ////testTriList.AddRange(Construct.Square(new Vect3(-0.1f, -0.1f, -0.1f), 0.2f, Color.Blue));
-            //testTriList.AddRange(Construct.Cube(new Vect3(0.1f, 0.1f, 0.1f), 0.1f, Color.Blue));
-            //testTriList.AddRange(Construct.Cube(new Vect3(-0.1f, -0.1f, -0.1f), 0.1f, Color.Red));
-            ////testTriList.AddRange(Construct.Cube(new Vect3(0.1f, -0.1f, -0.2f), 0.5f, Color.Red));
-            //testTris = testTriList.ToArray();
 
             //set up mousewheel handler
             MouseWheel += new MouseEventHandler(Scroll);
@@ -147,7 +95,6 @@ namespace vex
         }
         private void PB_main_Paint(object sender, PaintEventArgs e)
         {
-            //Graphics g = Graphics.FromImage(frameBuffer);
             //get graphics from PB - not framebuffer because bmp is inefficient
             Graphics g = e.Graphics;
             //for each "thing"
@@ -212,11 +159,9 @@ namespace vex
                                 {
                                     //just does the main part of all of this
                                     g.FillRectangle(new SolidBrush(entity.Color), new Rectangle(x, y, RASTERIZERBLOCKSIZE, RASTERIZERBLOCKSIZE));
-                                    //its only after commenting that I realise how ridic this all is
                                     //this part scrolls through the whole block and gets depth values for each pixel, applies
                                     //them to the z buffer
                                     //this remains kind of efficient because the painting is the intensive part
-                                    //COULD BE IMPROVED PROBABLY
 
                                     for (int zX = x; zX < x + RASTERIZERBLOCKSIZE; zX++)
                                     {
@@ -234,7 +179,6 @@ namespace vex
                                 }
                                 //handles subpixels - goes through every pixel in the 8x8 and checks and paints individually
                                 //this happens if >1 but <3 corners are in the triangle, or all the points of the box are not
-                                //just noticed that little heart
                                 //on the same side of every triangle edge
                                 else
                                 {
@@ -248,7 +192,6 @@ namespace vex
                                             if (subX < PB_main.Width && subY < PB_main.Height
                                                 && subX > 0 && subY > 0)
                                             {
-                                                //i told you it would be used
                                                 z = GetZ(new PointF(subX, subY), (Triangle)entity);
                                                 //standard check for any pixel
                                                 if (IsInsideTriangle(new Vect3(subX, subY, -1), (Triangle)entity)
@@ -263,26 +206,13 @@ namespace vex
                                     }
 
                                 }
-                                //if (z < zBuffer[x, y])
-                                //{
-                                //    //r = Convert.ToInt32(entity.Color.R - (255 * (z / 1)));
-                                //    //g = Convert.ToInt32(entity.Color.G - (255 * (z / 1)));
-                                //    //b = Convert.ToInt32(entity.Color.B - (255 * (z / 1)));
-                                //    //if (r < 0) { r = 0; } else if (r > 255) { r = 255; }
-                                //    //if (g < 0) { g = 0; } else if (g > 255) { g = 255; }
-                                //    //if (b < 0) { b = 0; } else if (b > 255) { b = 255; }
-                                //    //frameBuffer.SetPixel(x, y, Color.FromArgb(r, g, b));
-
-                                //    g.FillRectangle(new SolidBrush(entity.Color), x, y, 1, 1);
-                                //    zBuffer[x, y] = z;
-                                //}                    
                             }
                         }
                     }
                 }
             }
 
-            //and this lil boy does wireframes
+            //wireframes
             foreach (Renderable entity in render)
             {
                 //go through all combinations of vertices
@@ -290,19 +220,16 @@ namespace vex
                 {
                     foreach (Vect3 connectToVertex in entity.Vertices)
                     {
-                        //das a smart operator don't you worry
+                        //overloaded infix operator
                         if (vertex != connectToVertex)
                         {
-                            //draw dat line
+                            //draw line
                             g.DrawLine(Pens.Lime, vertex.X, vertex.Y, connectToVertex.X, connectToVertex.Y);
                         }
                     }
                 }
             }
             frames++;
-            //dont need this cus drawing directly on pb
-            //draw the image onto pb starting at (0,0)
-            //e.Graphics.DrawImage(frameBuffer, new Point(0, 0));
         }
 
         new private void Scroll(object sender, MouseEventArgs e)
@@ -337,11 +264,10 @@ namespace vex
         private void TIM_render_Tick(object sender, EventArgs e)
         {
             Renderable[] projected;
-            //frameBuffer = new Bitmap(PB_main.Width, PB_main.Height);
             zBuffer = new float[PB_main.Width, PB_main.Height];
             Matrix combined, translateToFrustrum;
             {
-                //cheeky matrix definition
+                //matrix definition section
                 //takes from origin, translates to into camera view
                 translateToFrustrum = new Matrix(new float[,]
                 {
@@ -350,7 +276,6 @@ namespace vex
                     { 0, 0, 1, -1.25f },
                     { 0, 0, 0, 1 }
                 });
-                //angleY = Convert.ToSingle((t / 72000f) * 2 * Math.PI);
 
                 //rotation matrices
                 Matrix rotateY = new Matrix(new float[,]
@@ -361,7 +286,6 @@ namespace vex
                     { 0, 0, 0, 1 }
                 });
 
-                //angleX = Convert.ToSingle((t / 72000f) * 2 * Math.PI);
 
                 Matrix rotateX = new Matrix(new float[,]
                 {
@@ -384,14 +308,11 @@ namespace vex
                 //combined matrix to make syntax cleaner
                 combined = scale.Multiply(rotateY.Multiply(rotateX));
 
-                //keep that time in sync - p much only autorotate for now so not used prob
-                //t += 100;
             }
-            //clean that dirty array
+            //clean array
             render = new List<Renderable>();
 
             //initialise zBuffer
-            //INFINITY is just a big no. don't tell anyone
             for (int x = 0; x < zBuffer.GetLength(0); x++)
             {
                 for (int y = 0; y < zBuffer.GetLength(1); y++)
@@ -409,7 +330,6 @@ namespace vex
                     .Project(VPWIDTH, VPHEIGHT, CTOVPZ, ZCLIPPING);
             }
 
-            //projected = new Renderable[] { (Line)(new Line(new Vect3(-0.25f, -0.25f, -0.25f), new Vect3(0.25f, 0.25f, 0.25f))).Transform(rotateX).Transform(rotateY).Transform(translateToFrustrum).Project(1,1,1,10) };
 
             //add NDC converts to render list
             foreach (Renderable entity in projected)
@@ -427,17 +347,11 @@ namespace vex
             axes.Add(new Line(new Vect3[] { new Vect3(0, 0, 0), new Vect3(0, 0.1f, 0) }));
             axes.Add(new Line(new Vect3[] { new Vect3(0, 0, 0), new Vect3(0, 0, 0.1f) }));
 
-            //ugly
             foreach (Line axis in axes)
             {
                 render.Add(ToScreenFromNDC(axis.Transform(combined).Transform(translateToFrustrum).Project(VPWIDTH, VPHEIGHT, CTOVPZ, ZCLIPPING)));
             }
 
-            //gonna make that bmp - oh no we don't gonna
-            //Graphics graph = Graphics.FromImage(frameBuffer);
-
-            //nice
-            //            PB_main.Refresh();
             TSC_main.ContentPanel.Update();
             PB_main.Refresh();
         }
@@ -467,8 +381,7 @@ namespace vex
             newVerts = new List<Vect3>();
 
             //for each vertex of the shape (probably triangle or line), convert that 
-            //scaling factor -ve cus screen is upside down for y :(
-            //honestly probably doing the -ve y fix several times but who cares
+            //scaling factor -ve because screen is upside down for y 
             foreach (Vect3 vect in input.Vertices)
             {
                 newVerts.Add(new Vect3(centre.X + (scalingFactor * vect.X), centre.Y + (-scalingFactor * vect.Y), vect.Z));
@@ -476,7 +389,7 @@ namespace vex
             input.Vertices = newVerts.ToArray();
             return input;
         }
-        //keeping this cus it feels useful
+        //not currently used but may be useful
         private Point ToScreenFromNDC(PointF input)
         {
             Point centre;
@@ -502,11 +415,10 @@ namespace vex
         //resets buffers
         private void PB_main_Resize(object sender, EventArgs e)
         {
-            //frameBuffer = new Bitmap(PB_main.Width, PB_main.Height);
             zBuffer = new float[PB_main.Width, PB_main.Height];
         }
 
-        //debug method
+        //debug method - keeping in case
         //private void FRM_render_KeyPress(object sender, KeyPressEventArgs e)
         //{
         //    //ENTER
@@ -537,12 +449,9 @@ namespace vex
             baseAngleX = angleX; baseAngleY = angleY;
         }
 
-        //self explanatory really (deals with projected screen coords)
+        //self explanatory (deals with projected screen coords)
         private bool IsInsideTriangle(Vect3 loc, Triangle container)
         {
-            //looks awfully familiar
-            //i dont know what this means
-            //help
             if (Construct.EdgeFunction(container.Vertices[0], container.Vertices[1], loc)
                 && Construct.EdgeFunction(container.Vertices[1], container.Vertices[2], loc)
                 && Construct.EdgeFunction(container.Vertices[2], container.Vertices[0], loc))
@@ -565,7 +474,6 @@ namespace vex
         private Rectangle BoundingBox(Triangle input)
         {
             //reps max values for each
-            //ahahhaha
             float top, left, bottom, right;
 
             //some initial values to compare with
@@ -592,8 +500,7 @@ namespace vex
                     left = input.Vertices[i].X;
                 }
             }
-            //a nasty little correction thing
-            //god bless no whitespace restrictions
+            //correction
             if (left < 0) { left = 0; }
             if (left > PB_main.Width) { left = PB_main.Width; }
             if (right < 0) { right = 0; }
@@ -603,15 +510,14 @@ namespace vex
             if (bottom < 0) { bottom = 0; }
             if (bottom > PB_main.Height) { bottom = PB_main.Height; }
 
-            //ew
             return new Rectangle(Convert.ToInt32(left), Convert.ToInt32(top), Convert.ToInt32(right - left), Convert.ToInt32(bottom - top));
         }
 
         private float GetZ(PointF p, Triangle t)
         {
-            //this is barycentric coords not a guy called barry
+            //find barycentric coords
             float[] bary = GetBary(t, new Vect3(p.X, p.Y, -1));
-            //minus needed - i don't know how many times this has been done
+            //-ve for -ve y flip
             return -Convert.ToSingle(Math.Pow(Math.Pow(t.Vertices[0].Z, -1) * bary[0]
                 + Math.Pow(t.Vertices[1].Z, -1) * bary[1]
                 + Math.Pow(t.Vertices[2].Z, -1) * bary[2], -1));
@@ -959,10 +865,8 @@ namespace vex
         }
         public static Line[] Vector(Vect3 pos, float i, float j, float k, Color color)
         {
-            //Vect3 v1, v2;
             List<Line> output = new List<Line>();
             output.Add(new Line(pos, new Vect3(pos.X + i, pos.Y + j, pos.Z + k), color));
-            //output.Add(new Line(new Vect3(pos.X + i, pos.Y + j, pos.Z + k), new Vect3()))
 
             return output.ToArray();
         }
@@ -970,7 +874,6 @@ namespace vex
         {
             Vect3 v1, v2;
             List<Line> output = new List<Line>();
-            float xOut, yOut, zOut, val;
             //+ve bound
             v1 = AssignLineValues(pos, i, j, k, bound, 0, 0);
             if (!(v1.Y <= bound && v1.Z <= bound))

@@ -27,7 +27,6 @@ namespace vex
 
     public class Triangle : Renderable
     {
-        //ooh boy is that a long constant
         private readonly string BADLYDIMENSIONEDCONSTRUCTORARRAYEXCEPTIONMESSAGE = "The constructor array passed is not of length 3 or more.";
 
         //triangle vertices - if there aren't only 3, something's gone wrong
@@ -37,8 +36,6 @@ namespace vex
 
         public bool Is2D { get { return true; } set { } }
 
-        //two constructors - i'll never use the second one probably but I might who knows 
-        //i like polymorphism
         public Triangle(Vect3 _p1, Vect3 _p2, Vect3 _p3, Color _color)
         {
             Vertices = new Vect3[3];
@@ -56,10 +53,11 @@ namespace vex
             Color = _color;
         }
 
-        //project - callback to like that interface and that
+        //project 
         //viewPort width and height are the NDC canvas dimensions
         //viewportCameraDistance is the distance from the canvas to the camera
-        //zClippingDepth is the distance from the camera at which "well now I'm not doing it"
+        //zClippingDepth is the distance from the camera 
+        //ended up implementing a diffent system for clipping - see TIM_render
         public Renderable Project(float viewportWidth, float viewPortHeight, float viewPortCameraDistance, float zClippingDepth)
         {
             return new Triangle(Vertices[0].Project(viewportWidth, viewPortHeight, viewPortCameraDistance, zClippingDepth),
