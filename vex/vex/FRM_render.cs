@@ -414,7 +414,10 @@ namespace vex
             //add NDC converts to render list
             foreach (Renderable entity in projected)
             {
-                render.Add(ToScreenFromNDC(entity));
+                if (Array.TrueForAll(entity.Vertices, vertex => vertex.Z < scaleFactor * -0.75f))
+                {
+                    render.Add(ToScreenFromNDC(entity));
+                }
             }
 
             //add axis
