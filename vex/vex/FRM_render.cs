@@ -740,6 +740,7 @@ namespace vex
         {
             if (File.Exists(OFD_main.FileName))
             {
+                New();
                 StreamReader strR = new StreamReader(OFD_main.FileName);
                 while (!strR.EndOfStream)
                 {
