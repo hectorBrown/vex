@@ -21,6 +21,6 @@ Past that, use the help button.
 THIS MIGHT BE USEFUL IF YOU'RE TRYING TO BUILD A 3D RENDERER YOURSELF (and know C#), but note that you really shouldn't build a 3D 
 renderer in C# like I did.
 
-I know its slow, I cba to fix it properly, check the branches for some in-progress potential solutions.
+I know its slow, I can't be bothered to fix it properly, check the branches for some in-progress potential solutions.
 
 - H
